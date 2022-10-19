@@ -1,0 +1,2 @@
+mymsg:vehicle01:vehicle02:vehicle03
+-DCATKIN_DEVEL_PREFIX=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel -DCMAKE_INSTALL_PREFIX=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/install -G Unix Makefiles

@@ -1,0 +1,10 @@
+<launch>
+
+
+  <node pkg="vehicle01" type="vehicle01" name="vehicle01" output="screen"/>
+  <node pkg="vehicle02" type="vehicle02" name="vehicle02" output="screen"/>
+  <node pkg="vehicle03" type="vehicle03" name="vehicle03" output="screen"/>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grid_path_searcher)/launch/rviz_config/demo.rviz"/> 
+
+</launch>

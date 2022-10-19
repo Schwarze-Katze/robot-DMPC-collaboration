@@ -134,9 +134,9 @@ void Initialize(ros::NodeHandle& n){
 
 	#if 1
 	// test setting for formation 2
-	xinit=4.0;yinit=-8.0;thetainit=3.14;
+	xinit=10.0;yinit=10.0;thetainit=3.14;
 	xr=1.0;yr=4.0;thetar=0.0;
-	std::vector<double> obst1 = {0.0,0.0};
+	std::vector<double> obst1 = {0.0,15.0};
 	std::vector<std::vector<double>> neig1(N+1,std::vector<double>{0.0,-3.0});
 	std::vector<std::vector<double>> neig2(N+1,std::vector<double>{-4.0,-8.0});
 	#endif	

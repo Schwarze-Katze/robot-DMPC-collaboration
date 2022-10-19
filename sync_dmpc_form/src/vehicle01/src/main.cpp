@@ -19,6 +19,9 @@
 #include "std_msgs/String.h"
 
 
+typedef std::deque<double> doubleque;
+typedef std::deque<doubleque> double2que;
+
 size_t N = 15;
 size_t m = 2;// represent the num of neighbors for this vehicle
 double Hz = 5.0;
@@ -26,8 +29,8 @@ size_t update_shift = 0;
 
 double xr;
 double yr;
-double thetar ;
-
+double thetar;
+const double disteps = 0.1;
 
 std::mutex neig_mtx;
 
@@ -38,7 +41,6 @@ double thetainit ;
 
 // ******protected by neig_mtx
 std::vector<std::vector<std::vector<double>>> neig;
- 
 
 std::vector<std::vector<double>> pre_states(N+1,std::vector<double>(3.0,0.0));
 std::vector<std::vector<double>> pre_inputs(N+1,std::vector<double>(2.0,0.0));
@@ -56,16 +58,16 @@ double ts = 1.0 / Hz;
 double safety_dist = 0.5;
 
 
-std::shared_ptr<Vehicle> vehicle; 
+std::shared_ptr<Vehicle> vehicle;
 std::vector<std::vector<double>> obst;
-
-std::shared_ptr<BatchSolver> bs(new BatchSolver(N,xr, yr, thetar, d, xinit,yinit, thetainit, ts, safety_dist,obst,neig));
+std::shared_ptr<BatchSolver> bs(new BatchSolver(N, xr, yr, thetar, d, xinit, yinit, thetainit, ts, safety_dist, obst, neig));
 
 ros::Publisher vehicle_pub;// for visulization
 ros::Publisher markerArray;
 ros::Publisher neig_pub;// tells other robots my pos
 ros::Subscriber sub1;
 ros::Subscriber sub2;
+ros::Subscriber subRef;
 //ros::Subscriber testsub;
 
 void UpdateVisualize();
@@ -73,7 +75,7 @@ void UpdateNeighborsPos();
 void Initialize(ros::NodeHandle& n);
 void NeighborCallback1(const mymsg::neighborpos& msg);
 void NeighborCallback2(const mymsg::neighborpos& msg);
-
+void UpdateReference( );
 
 int main(int argc,char* argv[]){
 	ros::init(argc,argv,"vehicle01");
@@ -96,11 +98,13 @@ int main(int argc,char* argv[]){
 };
 
 void Initialize(ros::NodeHandle& n){
-	#if 0
+	#if 1
 	// test setting 1	
-	xinit=-5.0;yinit=0.0;thetainit=0.0000000001;
-	xr=5.0;yr=0.0;thetar=0.0;
-	std::vector<double> obst1 = {0.0,0.0};
+	xinit=-10.0;yinit=10.0;thetainit=0;
+	xr=-10.0;
+	yr=5.0;
+	thetar = 0.0;
+	std::vector<double> obst1 = {0.0, 15.0};
 	std::vector<std::vector<double>> neig1(N+1,std::vector<double>{5.0,0.0});
 	std::vector<std::vector<double>> neig2(N+1,std::vector<double>{0.0,5.0});
 	#endif
@@ -155,8 +159,8 @@ void Initialize(ros::NodeHandle& n){
 	std::vector<double> obst1 = {0.0,0.0};	**/
 
 	obst.push_back(obst1);
-	neig.push_back(neig1);	
-	neig.push_back(neig2);	
+	neig.push_back(neig1);
+	neig.push_back(neig2);
 	bs->set_obst_(obst);
 	bs->set_ref_states(xr,yr,thetar);
 	bs->set_initial_states(xinit,yinit,thetainit);
@@ -166,11 +170,12 @@ void Initialize(ros::NodeHandle& n){
 	vehicle = vehicle_tmp;
 
 	vehicle_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 10);
-        markerArray = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 10);
-	neig_pub= n.advertise<mymsg::neighborpos>("neig1pos", 10);
-        sub1 = n.subscribe("neig2pos", 1000, NeighborCallback1);
-        sub2 = n.subscribe("neig3pos", 1000, NeighborCallback2);
-        // testsub = n.subscribe("chatter", 1000, chatterCallback);
+	markerArray = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 10);
+	neig_pub = n.advertise<mymsg::neighborpos>("neig1pos", 10);
+	sub1 = n.subscribe("neig2pos", 1000, NeighborCallback1);
+	sub2 = n.subscribe("neig3pos", 1000, NeighborCallback2);
+	//subRef = n.subscribe("refPointPos", 1000, refCallback);
+	// testsub = n.subscribe("chatter", 1000, chatterCallback);
 	
 };
 void UpdateVisualize(){
@@ -190,27 +195,27 @@ void UpdateVisualize(){
 		ObstRviz(obst,safety_dist,markerArray);
 
 		bs->set_initial_states(xinit,yinit,thetainit);
-			
-		bs->set_neighbors(neig,neig_mtx);
-		bs->Solve(pre_states,pre_inputs,solve_success);
-
+		bs->set_ref_states(xr, yr, thetar);
+		bs->set_neighbors(neig, neig_mtx);
+		bs->Solve(pre_states, pre_inputs, solve_success);
+		std::cout << "V01-init:" << xinit << ',' << yinit << "\tV01-ref:" << xr << ',' << yr << std::endl;
+		//Status publishing
 		if(solve_success){
 			update_shift = 0;
-
 			std::vector<double> pre_x;
 			std::vector<double> pre_y;
 			for(int i = 0 ; i < pre_states.size(); i++){
 				pre_x.push_back(pre_states[i][0]);
 				pre_y.push_back(pre_states[i][1]);
 			}
-   			mymsg::neighborpos msg;
-   			msg.xpos = pre_x;
-   			msg.ypos = pre_y;
-    			msg.time_stamp = ros::Time::now().toSec();
+			mymsg::neighborpos msg;
+			msg.xpos = pre_x;
+			msg.ypos = pre_y;
+			msg.time_stamp = ros::Time::now( ).toSec( );
 			neig_pub.publish(msg);
 		}else{// if fail to solve, publish the shifted pre_states
-			update_shift++;	
-			std::cout<<" ***publish previous states : "<< update_shift <<" ***"<<std::endl;		
+			update_shift++;
+			// std::cout<<" ***publish previous states : "<< update_shift <<" ***"<<std::endl;		
 			if(update_shift<N){
 				std::vector<double> pre_x;
 				std::vector<double> pre_y;
@@ -224,20 +229,17 @@ void UpdateVisualize(){
 					pre_y.push_back(0.0);
 				}
 				mymsg::neighborpos msg;
-   				msg.xpos = pre_x;
-   				msg.ypos = pre_y;
+				msg.xpos = pre_x;
+				msg.ypos = pre_y;
     				msg.time_stamp = ros::Time::now().toSec();
 				neig_pub.publish(msg);
-	
-
 			}else{
-				std::cout<<" *** !!! no more previous states !!! *** "<<std::endl;
+				// std::cout<<" *** !!! no more previous states !!! *** "<<std::endl;
 				return;
 			}
-
 		}
-
-		ros::spinOnce();// send the solution ASAP after the solving
+		
+		ros::spinOnce( );// send the solution ASAP after the solving
 		loop_rate_sim.sleep();
 
 		while(first_solution_v1 == false || first_solution_v2 == false){};
@@ -245,18 +247,24 @@ void UpdateVisualize(){
 		if(solve_success){
 			solve_success = false;
 			vehicle->UpdateStates(pre_inputs[0][0],pre_inputs[0][1]);
-
+			// std::cout<<"1:vl="<<pre_inputs[0][0]<<",1:vr="<<pre_inputs[0][1]<<std::endl;
 		}else{// if fail to solve, use shifted input in the last iteration
-
 			if(update_shift<N){
-
 				vehicle->UpdateStates(pre_inputs[update_shift][0],pre_inputs[update_shift][1]);
+				// std::cout<<"1:vl="<<pre_inputs[update_shift][0]<<"1:vr="<<pre_inputs[update_shift][1]<<std::endl;
 			}else{
-
 				return;
 			}
 		}
-
+		/*auto xcur=vehicle->get_x();
+		auto ycur = vehicle->get_y();
+		auto thetacur = vehicle->get_theta();
+		double dist = pow(xcur - xr, 2) + pow(ycur - yr, 2);
+		if(dist<disteps){
+			
+		}
+		else{}*/
+		UpdateReference();
 		xinit = vehicle->get_x();
 		yinit = vehicle->get_y();
 		thetainit = vehicle->get_theta();
@@ -270,36 +278,46 @@ void UpdateVisualize(){
 
 };
 
-void NeighborCallback1(const mymsg::neighborpos& msg)
-{
-
+void NeighborCallback1(const mymsg::neighborpos& msg) {
 	std::vector<double> x = msg.xpos;
 	std::vector<double> y = msg.ypos;
 	std::lock_guard<std::mutex> lk(neig_mtx);
-	for(size_t i = 1; i< neig[0].size();i++){
-		neig[0][i-1][0] = x[i];
-		neig[0][i-1][1] = y[i];
+	for (size_t i = 1; i < neig[0].size( );i++) {
+		neig[0][i - 1][0] = x[i];
+		neig[0][i - 1][1] = y[i];
 	}
-	neig[0][neig[0].size()-1][0] = neig[0][neig[0].size()-2][0];
-	neig[0][neig[0].size()-1][1] = neig[0][neig[0].size()-2][1];
+	neig[0][neig[0].size( ) - 1][0] = neig[0][neig[0].size( ) - 2][0];
+	neig[0][neig[0].size( ) - 1][1] = neig[0][neig[0].size( ) - 2][1];
 	first_solution_v1 = true;
 };
-void NeighborCallback2(const mymsg::neighborpos& msg)
-{
-
+void NeighborCallback2(const mymsg::neighborpos& msg) {
 	std::vector<double> x = msg.xpos;
 	std::vector<double> y = msg.ypos;
 	std::lock_guard<std::mutex> lk(neig_mtx);
-	for(int i = 1; i< neig[0].size();i++){
-		neig[1][i-1][0] = x[i];
-		neig[1][i-1][1] = y[i];
-		
+	for (int i = 1; i < neig[0].size( );i++) {
+		neig[1][i - 1][0] = x[i];
+		neig[1][i - 1][1] = y[i];
 
 	}
-	neig[1][neig[1].size()-1][0] = neig[1][neig[1].size()-2][0];
-	neig[1][neig[1].size()-1][1] = neig[1][neig[1].size()-2][1];	
+	neig[1][neig[1].size( ) - 1][0] = neig[1][neig[1].size( ) - 2][0];
+	neig[1][neig[1].size( ) - 1][1] = neig[1][neig[1].size( ) - 2][1];
 	first_solution_v2 = true;
 };
 
-
-
+//void refCallback(const mymsg::refpos& msg) {
+	
+//};
+#define ISFOLLOWER
+void UpdateReference( ) {
+#ifdef ISFOLLOWER
+	double diffX = 0.0, diffY = 0.0, diffTheta = 0;
+	auto xcur = vehicle->get_x( );
+	auto ycur = vehicle->get_y( );
+	auto thetacur = vehicle->get_theta( );
+	diffX = 0;
+	diffY = 3;
+	xr = xcur + diffX;
+	yr = ycur - diffY;
+	thetar = thetar;
+#endif
+}

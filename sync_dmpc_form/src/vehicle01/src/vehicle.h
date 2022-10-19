@@ -19,12 +19,12 @@ class Vehicle{
 	double get_x(){ return x_;}
 	double get_y(){ return y_;}
 	double get_theta(){ return theta_;}
-	void UpdateStates(const double& v,const double& angle);
+	void UpdateStates(const double& vl,const double& vr);
 };
 void Vehicle::UpdateStates(const double& vl,const double& vr){
 
-	x_ += Ts_ * 1.0/2.0 * (vl+ vr)* cos(theta_);
-	y_ += Ts_ * 1.0/2.0 * (vl+ vr)* sin(theta_);
+	x_ += Ts_ * 1.0 / 2.0 * (vl + vr) * cos(theta_);
+	y_ += Ts_ * 1.0 / 2.0 * (vl + vr) * sin(theta_);
 	theta_ += Ts_*1.0/d_*(vr - vl);
 
 	

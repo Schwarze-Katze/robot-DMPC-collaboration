@@ -73,7 +73,7 @@ void UpdateNeighborsPos();
 void Initialize(ros::NodeHandle& n);
 void NeighborCallback1(const mymsg::neighborpos& msg);
 void NeighborCallback2(const mymsg::neighborpos& msg);
-
+void UpdateReference( );
 
 int main(int argc,char* argv[]){
 	ros::init(argc,argv,"vehicle02");
@@ -97,11 +97,11 @@ int main(int argc,char* argv[]){
 
 void Initialize(ros::NodeHandle& n){
 	
-	#if 0
+	#if 1
 	// test setting 1
-	xinit=5.0;yinit=0.0;thetainit=3.14;
-	xr=-5.0;yr=0.0;thetar=0.0;
-	std::vector<double> obst1 = {0.0,0.0};
+	xinit=0.0;yinit=10.0;thetainit=0.0;
+	xr=0.0;yr=0.0;thetar=0.0;
+	std::vector<double> obst1 = {0.0,15.0};
 	std::vector<std::vector<double>> neig1(N+1,std::vector<double>{-5.0,0.0});
 	std::vector<std::vector<double>> neig2(N+1,std::vector<double>{0.0,5.0});
 	#endif
@@ -133,11 +133,11 @@ void Initialize(ros::NodeHandle& n){
 	std::vector<std::vector<double>> neig2(N+1,std::vector<double>{2.0,6.0});
 	#endif 
 
-	#if 1
+	#if 0
 	// test setting for formation 2
-	xinit=-4.0;yinit=-8.0;thetainit=3.14;
-	xr=-1.0;yr=4.0;thetar=0.0;
-	std::vector<double> obst1 = {0.0,0.0};
+	xinit=0.0;yinit=10.0;thetainit=0;
+	xr=0;yr=0;thetar=0.0;
+	std::vector<double> obst1 = {0.0,15.0};
 	std::vector<std::vector<double>> neig1(N+1,std::vector<double>{0.0,-3.0});
 	std::vector<std::vector<double>> neig2(N+1,std::vector<double>{4.0,8.0});
 	#endif 
@@ -190,7 +190,7 @@ void UpdateVisualize(){
 		ObstRviz(obst,safety_dist,markerArray);
 
 		bs->set_initial_states(xinit,yinit,thetainit);
-			
+		bs->set_ref_states(xr, yr, thetar);
 		bs->set_neighbors(neig,neig_mtx);
 		bs->Solve(pre_states,pre_inputs,solve_success);
 
@@ -245,18 +245,20 @@ void UpdateVisualize(){
 		if(solve_success){
 			solve_success = false;
 			vehicle->UpdateStates(pre_inputs[0][0],pre_inputs[0][1]);
+			// std::cout<<"2:vl="<<pre_inputs[0][0]<<"，2:vr="<<pre_inputs[0][1]<<std::endl;
 
 		}else{// if fail to solve, use shifted input in the last iteration
 
 			if(update_shift<N){
 
 				vehicle->UpdateStates(pre_inputs[update_shift][0],pre_inputs[update_shift][1]);
+				// std::cout<<"2:vl="<<pre_inputs[update_shift][0]<<"2:vr="<<pre_inputs[update_shift][1]<<std::endl;
 			}else{
 
 				return;
 			}
 		}
-
+		UpdateReference();
 		xinit = vehicle->get_x();
 		yinit = vehicle->get_y();
 		thetainit = vehicle->get_theta();
@@ -304,4 +306,17 @@ void NeighborCallback2(const mymsg::neighborpos& msg)
 	first_solution_v2 = true;
 };
 
-
+#define ISFOLLOWER
+void UpdateReference( ) {
+#ifdef ISFOLLOWER
+	double diffX = 0.0, diffY = 0.0, diffTheta = 0;
+	auto xcur = vehicle->get_x( );
+	auto ycur = vehicle->get_y( );
+	auto thetacur = vehicle->get_theta( );
+	diffX = 5.0 * cos(thetar);
+	diffY = 5.0 * sin(thetar);
+	xr = xcur + diffX;
+	yr = ycur + diffY;
+	thetar = thetar;
+#endif
+}

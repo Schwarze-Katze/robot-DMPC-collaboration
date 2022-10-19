@@ -20,8 +20,8 @@ void VehicleRviz(const double& x, const double& y, const double& theta,const dou
     marker.scale.x = safety_dist*2.0;
     marker.scale.y = safety_dist*2.0;
     marker.scale.z = 0.1;
-    marker.color.r = 1.0f;
-    marker.color.g = 0.0f;
+    marker.color.r = 0.0f;
+    marker.color.g = 1.0f;
     marker.color.b = 0.0f;
     marker.color.a = 1.0;
     marker.lifetime = ros::Duration();

@@ -44,17 +44,17 @@ void BatchSolver::Solve(std::vector<std::vector<double>>& pre_states,std::vector
     // lower and upper limits for x
     Dvector xl(num_states), xu(num_states);
 
-	for(size_t j = 0; j < N_ + 1; j++){
-		xl[j*5] = -10.0;xu[j*5] = 10.0;
-		xl[j*5 + 1] = -10.0;xu[j*5 + 1] = 10.0;
-		xl[j*5 + 2] = -4.0*3.14;xu[j*5 + 2] = 4.0*3.14;
+	for (size_t j = 0; j < N_ + 1; j++) {
+		xl[j * 5] = -100.0;xu[j * 5] = 100.0;
+		xl[j*5 + 1] = -100.0;xu[j*5 + 1] = 100.0;//xy limit
+		xl[j*5 + 2] = -4.0*3.14;xu[j*5 + 2] = 4.0*3.14;//theta limit
 		xl[j*5 + 3] = 0.0;xu[j*5 + 3] = 3.0;
-		xl[j*5 + 4] = 0.0;xu[j*5 + 4] = 3.0;
+		xl[j*5 + 4] = 0.0;xu[j*5 + 4] = 3.0;//velocity limit
 	}
 
 
     size_t start_i = 5*(N_-1)+10; 
-    for(size_t i = 0; i < m_;i++){
+    for(size_t i = 0; i < m_;i++){//neighbor limit
 		for(size_t k = 0; k < N_+1;k++){
 			xl[start_i + i*4*(N_+1) +k*4] = -1.0e19;xu[start_i + i*4*(N_+1)  + k*4] = 1.0e19;
 			xl[start_i  + i*4*(N_+1) + k*4 + 1] = -1.0e19;xu[start_i  + i*4*(N_+1) + k*4 + 1] = 1.0e19;
@@ -66,7 +66,7 @@ void BatchSolver::Solve(std::vector<std::vector<double>>& pre_states,std::vector
 
 	size_t start_obst = start_i + (4*(N_-1)+8)*m_;
 
-	for(size_t j = 0; j < p_;j++){
+	for(size_t j = 0; j < p_;j++){//obstacle limit
 		for(size_t k = 0; k < N_+1;k++){
 			xl[start_obst  + j*4*(N_+1) + k*4] = -1.0e19;xu[start_obst  + j*4*(N_+1) + k*4] = 1.0e19;
 			xl[start_obst  + j*4*(N_+1)+ k*4 + 1]= -1.0e19;xu[start_obst + j*4*(N_+1) + k*4+1]= 1.0e19;
@@ -75,7 +75,7 @@ void BatchSolver::Solve(std::vector<std::vector<double>>& pre_states,std::vector
 		}
 	}
 	size_t start_form = start_obst + (4*(N_-1)+8)*p_;
-    for(size_t i = 0; i < m_;i++){
+    for(size_t i = 0; i < m_;i++){//obst
 		for(size_t k = 0; k < N_+1;k++){
 			xl[start_form + i*(N_+1) +k] = -1.0e19;xu[start_form + i*(N_+1)  + k] = 1.0e19;
 		
@@ -115,11 +115,11 @@ void BatchSolver::Solve(std::vector<std::vector<double>>& pre_states,std::vector
 	}
 
 
-//std::cout<<3*N_*(m_+(m_+1)*(m_-2)/2+1)+3<<"jijijkjk "<<std::endl;
-  // std::cout<<gl<<std::endl;
-  //std::cout<<gu<<std::endl;
-    // object that computes objective and constraints
- //exit(0);
+//    std::cout << 3 * N_ * (m_ + (m_ + 1) * (m_ - 2) / 2 + 1) + 3 << "jijijkjk " << std::endl;
+//    std::cout << gl << std::endl;
+//    std::cout << gu << std::endl;
+//    //object that computes objective and constraints
+//    exit(0);
 
 
     // N_, m_, xr_, yr_, thetar_, d_, xinit_,yinit_, thetainit_, ts_, safety_dist_

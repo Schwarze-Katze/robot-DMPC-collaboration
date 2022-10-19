@@ -47,7 +47,7 @@ void HeadingRviz(const double& x, const double& y, const double& theta,const dou
         marker.scale.y = 0.1;
         marker.scale.z = 0.1;
         marker.color.r = 0.7f;
-        marker.color.g = 0.3f;
+        marker.color.g = 0.7f;
         marker.color.b = 1.0f;
         marker.color.a = 1.0;
         marker.lifetime = ros::Duration();
@@ -113,10 +113,6 @@ void TrajRviz(const std::vector<std::vector<double>> states,const double safety_
 	
         pub.publish(ma);
         ma.markers.clear();
-
-
-
-
 
 }
 
