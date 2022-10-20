@@ -3,8 +3,6 @@
 * The failure to solve is considered but it is assumed the time it costs is ignorable even if it fails to solve;
 **/
 
-
-
 #include "batch_solver.h"
 #include <iostream>
 #include "ros/ros.h"
@@ -72,7 +70,7 @@ void UpdateNeighborsPos();
 void Initialize(ros::NodeHandle& n);
 void NeighborCallback1(const mymsg::neighborpos& msg);
 void NeighborCallback2(const mymsg::neighborpos& msg);
-void UpdateReference();
+void UpdateReference(const mymsg::refpos& msg);
 
 int main(int argc, char* argv[]) {
 	ros::init(argc, argv, "vehicle01");
@@ -232,8 +230,8 @@ void UpdateVisualize() {
 				msg.ypos = pre_y;
 				msg.time_stamp = ros::Time::now().toSec();
 				neig_pub.publish(msg);
-			}			
-else {
+			}
+			else {
 				// std::cout<<" *** !!! no more previous states !!! *** "<<std::endl;
 				return;
 			}
@@ -266,7 +264,6 @@ else {
 
 		}
 		else{}*/
-		UpdateReference();
 		xinit = vehicle->get_x();
 		yinit = vehicle->get_y();
 		thetainit = vehicle->get_theta();
@@ -307,7 +304,7 @@ void NeighborCallback2(const mymsg::neighborpos& msg) {
 
 //};
 
-void UpdateReference(const mymsg::refpos msg) {
+void UpdateReference(const mymsg::refpos& msg) {
 	xr = msg.xr[0];
 	yr = msg.yr[0];
 	thetar = msg.thetar[0];
