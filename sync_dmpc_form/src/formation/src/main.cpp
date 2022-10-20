@@ -19,28 +19,37 @@ std::vector<refPoint> refPoints;
 const double pi = 3.1416;
 
 void Init(ros::NodeHandle n);
-void GenerateRefPoint(refPoint);
-refPoint GetBasePoint(ros::Duration);
+void GenerateRefPoint(refPoint, double);
+refPoint GetBasePoint(double);
 
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "");
     ros::init(argc, argv, "formation");
     ros::NodeHandle n;
-    ros::Rate loopRate(10);
+    ros::Rate loopRate(5);
     Init(n);
-    ros::Time beginTime = ros::Time::now();
+    auto beginTime = ros::Time::now().toSec();
     while (ros::ok()) {
-        ros::Time curTime = ros::Time::now();
-        ros::Duration dur = curTime - beginTime;//计算距离开始时的时间差
+        auto curTime = ros::Time::now().toSec();
+        auto dur = curTime - beginTime;//计算距离开始时的时间差
         GenerateRefPoint(GetBasePoint(dur), dur);
         mymsg::refpos pospub;
+        for (auto tmp : refPoints) {
+            pospub.xr.push_back(tmp.x);
+            pospub.yr.push_back(tmp.y);
+            pospub.thetar.push_back(tmp.theta);
+        }
         refPointPub.publish(pospub);
         ros::spinOnce();
         loopRate.sleep();
     }
 }
 
-void GenerateRefPoint(refPoint base, ros::Duration t) {//todo:实现坐标转换
+void Init(ros::NodeHandle n) {
+    refPointPub = n.advertise<mymsg::refpos>("formation", 10);
+}
+
+void GenerateRefPoint(refPoint base, double t) {//todo:实现坐标转换
     enum pattern {
         singleHorizontal,
         singleVertical,
@@ -53,53 +62,52 @@ void GenerateRefPoint(refPoint base, ros::Duration t) {//todo:实现坐标转换
         return;
     }
     std::cout << "pattern changed:";
-    refPoints.clear();
+    refPoints.clear();//清空参考点，不会影响已经pub的消息
     double gap = 3;
     for (size_t i = 0; i < N; i++) {
         refPoints.push_back(base);
     }
-    std::vector<refPoint> tmp(3);
     switch (rand() % 6) {
     case singleHorizontal:
         std::cout << "Single Horizontal" << std::endl;
         for (size_t i = 0; i < N; i++) {
-            tmp[i].x = -gap * (N - 1) / 2 + gap * i;
+            refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
         }
         break;
     case singleVertical:
         std::cout << "Single Vertical" << std::endl;
         for (size_t i = 0; i < N; i++) {
-            tmp[i].y = gap * (N - 1) / 2 - gap * i;
+            refPoints[i].y = gap * (N - 1) / 2 - gap * i;
         }
         break;
     case singleSlope:
         std::cout << "Single Slope" << std::endl;
         for (size_t i = 0; i < N; i++) {
-            tmp[i].x = -gap * (N - 1) / 2 + gap * i;
-            tmp[i].y = gap * (N - 1) / 2 - gap * i;
+            refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
+            refPoints[i].y = gap * (N - 1) / 2 - gap * i;
         }
         break;
     case forwardTriangle:
         std::cout << "Forward Triangle" << std::endl;
         for (size_t i = 0; i < N; i++) {
-            tmp[i].x = -gap * (N - 1) / 2 + gap * i;
+            refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
             if (i <= N / 2) {
-                tmp[i].y = -gap * (N - 1) / 2 + 2* gap * i;
+                refPoints[i].y = -gap * (N - 1) / 2 + 2 * gap * i;
             }
             else {
-                tmp[i].y = gap * (N - 1) / 2 - 2 * gap * i;
+                refPoints[i].y = gap * (N - 1) / 2 - 2 * gap * i;
             }
         }
         break;
     case backwardTriangle:
         std::cout << "Backward Triangle" << std::endl;
         for (size_t i = 0; i < N; i++) {
-            tmp[i].x = -gap * (N - 1) / 2 + gap * i;
+            refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
             if (i >= N / 2) {
-                tmp[i].y = -gap * (N - 1) / 2 + 2 * gap * i;
+                refPoints[i].y = -gap * (N - 1) / 2 + 2 * gap * i;
             }
             else {
-                tmp[i].y = gap * (N - 1) / 2 - 2 * gap * i;
+                refPoints[i].y = gap * (N - 1) / 2 - 2 * gap * i;
             }
         }
         break;
@@ -107,15 +115,14 @@ void GenerateRefPoint(refPoint base, ros::Duration t) {//todo:实现坐标转换
         std::cout << "Circle" << std::endl;
         const double R = 5, phi = 2 * pi / N;
         for (size_t i = 0; i < N; i++) {
-            tmp[i].x = R * cos(i * phi);
-            tmp[i].y = R * sin(i * phi);
+            refPoints[i].x = R * cos(i * phi);
+            refPoints[i].y = R * sin(i * phi);
         }
-
         break;
     };
 }
 
-refPoint GetBasePoint(ros::Duration t) {
+refPoint GetBasePoint(double t) {
     // double omega = 0.1;
     // double R = 5;
     // refPoint base;
@@ -125,8 +132,8 @@ refPoint GetBasePoint(ros::Duration t) {
     
     refPoint base;
     double vx = 0, vy = 2;
-    base.x = vx * t.toSec();
-    base.y = vy * t.toSec();
+    base.x = vx * t;
+    base.y = vy * t;
     base.theta = 0;
     return base;
 }

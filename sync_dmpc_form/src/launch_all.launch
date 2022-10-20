@@ -1,7 +1,8 @@
 <launch>
 <node pkg="vehicle03" type="vehicle03" name="vehicle03" />
-<node pkg="vehicle02" type="vehicle02" name="vehicle02" output="screen"/>
-<node pkg="vehicle01" type="vehicle01" name="vehicle01" />
+<node pkg="vehicle02" type="vehicle02" name="vehicle02" />
+<node pkg="vehicle01" type="vehicle01" name="vehicle01" output="screen"/>
+<node pkg="formation" type="formation" name="formation" output="screen"/>
 <node name="rviz" pkg="rviz" type="rviz" args="-d /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/myrvizdefault.rviz"/> 
 
 </launch>
