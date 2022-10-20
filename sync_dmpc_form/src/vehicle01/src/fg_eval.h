@@ -142,7 +142,7 @@ namespace {
 
 			for (size_t j = 0; j < N_ + 1;j++) {
 				fg[0] += (v_states[j * 5] - xr_) * (v_states[j * 5] - xr_) + (v_states[j * 5 + 1] - yr_) * (v_states[j * 5 + 1] - yr_);
-				fg[0] += v_states[j * 5 + 3] * 0.1 * v_states[j * 5 + 3] + v_states[j * 5 + 4] * 0.1 * v_states[j * 5 + 4];
+				fg[0] += v_states[j * 5 + 3] * 0.001 * v_states[j * 5 + 3] + v_states[j * 5 + 4] * 0.001 * v_states[j * 5 + 4];
 				//std::cout<<"ss3 : "<<j*5<<" "<<j*5+1<<std::endl;
 			}
 
