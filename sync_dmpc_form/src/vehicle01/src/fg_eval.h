@@ -38,9 +38,10 @@ namespace {
 
 
 		void operator()(ADvector& fg, const ADvector& x) {
-			assert(fg.size( ) == (m_ + p_ - 1) * (3 * N_ + 3) + 6 * N_ + 7 + (m_ - 1) * (N_ + 1) + N_ + 1);
-			assert(x.size( ) == 5 * (N_ - 1) + 10 + (4 * (N_ - 1) + 8) * (m_ + p_) + (m_ - 1) * (N_ + 1) + N_ + 1);
-
+			// std::cout << "fg&x:" << fg << ',' << x << std::endl;
+			assert(fg.size() == (m_ + p_ - 1) * (3 * N_ + 3) + 6 * N_ + 7 + (m_ - 1) * (N_ + 1) + N_ + 1);
+			assert(x.size() == 5 * (N_ - 1) + 10 + (4 * (N_ - 1) + 8) * (m_ + p_) + (m_ - 1) * (N_ + 1) + N_ + 1);
+			
 			std::vector<AD<double>> v_states;
 			for (size_t j = 0; j < N_ + 1;j++) {
 				AD<double> x_tmp1 = x[j * 5];
@@ -151,7 +152,7 @@ namespace {
 			for (size_t i = 0; i < m_; i++) {
 				for (size_t k = 0; k < N_ + 1;k++) {
 					//std::cout<<"ss4 : "<<k*4+3<<std::endl;
-					fg[0] += (v_planes[i][k * 4 + 3]) * 100000000 * (v_planes[i][k * 4 + 3])*0;
+					fg[0] += (v_planes[i][k * 4 + 3]) * 100000000 * (v_planes[i][k * 4 + 3]) * 0;
 					//std::cout<<"ss4 : "<<k*4+3<<std::endl;
 				}
 			}
@@ -159,7 +160,7 @@ namespace {
 			// penalize soft factors of obst-vehicles
 			for (size_t j = 0; j < p_;j++) {
 				for (size_t k = 0; k < N_ + 1;k++) {
-					fg[0] += (v_obst[j][k * 4 + 3]) * 100000000 * (v_obst[j][k * 4 + 3])*0;
+					fg[0] += (v_obst[j][k * 4 + 3]) * 100000000 * (v_obst[j][k * 4 + 3]) * 0;
 					//	std::cout<<"ss11 : "<<k*4+3<<std::endl;
 				}
 			}
@@ -168,7 +169,7 @@ namespace {
 #if 1
 			for (size_t i = 0; i < m_; i++) {
 				for (size_t k = 0; k < N_ + 1;k++) {
-					fg[0] += (v_form[i][k]) * 0.05 * (v_form[i][k])*0;
+					fg[0] += (v_form[i][k]) * 0.05 * (v_form[i][k]) * 0;
 					//std::cout<<"ss4 : "<<k*4+3<<std::endl;
 				}
 			}
@@ -284,7 +285,7 @@ namespace {
 				}
 			}//fg[ (m_ + p_ -1)*(3*N_+3) + 6*N_ + 7 + (m_ - 1)*(N_+1) + N_] 
 
-
+			// std::cout << "eval complete" << std::endl;
 			return;
 		}
 	};

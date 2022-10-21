@@ -14,9 +14,20 @@ public:
     refPoint(double x_, double y_, double theta_) :x(x_), y(y_), theta(theta_) { }
     refPoint() :x(0.0), y(0.0), theta(0.0) { }
 };
+
+enum pattern {
+    singleHorizontal,
+    singleVertical,
+    singleSlope,
+    forwardTriangle,
+    backwardTriangle,
+    circle,
+};
+
 const int N = 3;//目标点数量，todo:改为argv[]指定
 std::vector<refPoint> refPoints;
 const double pi = 3.1416;
+int p = 0;
 
 void Init(ros::NodeHandle n);
 void GenerateRefPoint(refPoint, double);
@@ -26,7 +37,7 @@ int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "");
     ros::init(argc, argv, "formation");
     ros::NodeHandle n;
-    ros::Rate loopRate(5);
+    ros::Rate loopRate(2);
     Init(n);
     auto beginTime = ros::Time::now().toSec();
     while (ros::ok()) {
@@ -50,45 +61,55 @@ void Init(ros::NodeHandle n) {
 }
 
 void GenerateRefPoint(refPoint base, double t) {//todo:实现坐标转换
-    enum pattern {
-        singleHorizontal,
-        singleVertical,
-        singleSlope,
-        forwardTriangle,
-        backwardTriangle,
-        circle,
-    };
-    if (rand() % 1000 > 0) {//1k次更改1次
-        return;
+    // std::cout << "RefGeneratedBaseOn:" << base.x << "," << base.y << "," << base.theta << std::endl;
+    
+    if (rand() % 1000 == 0) {//1k次更改1次
+        p = rand() % 6;
+        std::cout << "pattern changed:";
+        switch (p) {
+        case singleHorizontal:
+            std::cout << "Single Horizontal" << std::endl;
+            break;
+        case singleSlope:
+            std::cout << "Single Slope" << std::endl;
+            break;
+        case forwardTriangle:
+            std::cout << "Forward Triangle" << std::endl;
+            break;
+        case backwardTriangle:
+            std::cout << "Backward Triangle" << std::endl;
+            break;
+        case circle:
+            std::cout << "Circle" << std::endl;
+        default:
+            break;
+        }
     }
-    std::cout << "pattern changed:";
     refPoints.clear();//清空参考点，不会影响已经pub的消息
     double gap = 3;
     for (size_t i = 0; i < N; i++) {
         refPoints.push_back(base);
     }
-    switch (rand() % 6) {
+    // std::cout <<"refp.size:"<< refPoints.size() << std::endl;
+    switch (p) {
     case singleHorizontal:
-        std::cout << "Single Horizontal" << std::endl;
+        // std::cout << "Single Horizontal" << std::endl;
         for (size_t i = 0; i < N; i++) {
             refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
         }
         break;
     case singleVertical:
-        std::cout << "Single Vertical" << std::endl;
         for (size_t i = 0; i < N; i++) {
             refPoints[i].y = gap * (N - 1) / 2 - gap * i;
         }
         break;
     case singleSlope:
-        std::cout << "Single Slope" << std::endl;
         for (size_t i = 0; i < N; i++) {
             refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
             refPoints[i].y = gap * (N - 1) / 2 - gap * i;
         }
         break;
     case forwardTriangle:
-        std::cout << "Forward Triangle" << std::endl;
         for (size_t i = 0; i < N; i++) {
             refPoints[i].x = -gap * (N - 1) / 2 + gap * i;
             if (i <= N / 2) {
@@ -135,5 +156,6 @@ refPoint GetBasePoint(double t) {
     base.x = vx * t;
     base.y = vy * t;
     base.theta = 0;
+    // std::cout << "base:" << base.x << "," << base.y << "," << base.theta << std::endl;
     return base;
 }

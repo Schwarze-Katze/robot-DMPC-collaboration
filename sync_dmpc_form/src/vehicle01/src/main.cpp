@@ -79,10 +79,8 @@ int main(int argc, char* argv[]) {
     Initialize(n);
 
 
-
     std::thread sim_thread(&UpdateVisualize);
     sim_thread.detach();
-
 
 
     while (ros::ok()) {
@@ -160,7 +158,6 @@ void Initialize(ros::NodeHandle& n) {
     bs->set_ref_states(xr, yr, thetar);
     bs->set_initial_states(xinit, yinit, thetainit);
     bs->set_neighbors(neig, neig_mtx);
-
     std::shared_ptr<Vehicle> vehicle_tmp(new Vehicle(xinit, yinit, thetainit, ts, d));
     vehicle = vehicle_tmp;
 
@@ -308,4 +305,5 @@ void UpdateReference(const mymsg::refpos& msg) {
     xr = msg.xr[0];
     yr = msg.yr[0];
     thetar = msg.thetar[0];
+    std::cout << "ref:" << xr << ',' << yr << ',' << thetar << std::endl;
 }

@@ -138,13 +138,13 @@ void BatchSolver::Solve(std::vector<std::vector<double>>& pre_states,std::vector
     // place to return solution
     CppAD::ipopt::solve_result<Dvector> solution;
 
-    // solve the problem
+	// std::cout << "options:" + options << "xi,xl,xu,gl,gu:" << xi.size() << ',' << xl.size() << ',' << xu.size() << ',' << gl.size() << ',' << gu.size() << std::endl;
+	
+	// solve the problem
     auto start_t = std::chrono::system_clock::now();
-    
     CppAD::ipopt::solve<Dvector, FG_eval>(
         options, xi, xl, xu, gl, gu, fg_eval, solution
     );
-
     auto end   = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start_t);
      std::cout <<  "花费了" 
@@ -181,15 +181,8 @@ void BatchSolver::Solve(std::vector<std::vector<double>>& pre_states,std::vector
 		}
 	
 	}
- 
-
-    
-
 
     solve_success = ok;
-
-
-
 
     return;
 
