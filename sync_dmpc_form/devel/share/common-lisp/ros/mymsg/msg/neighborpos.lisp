@@ -21,7 +21,12 @@
     :reader time_stamp
     :initarg :time_stamp
     :type cl:float
-    :initform 0.0))
+    :initform 0.0)
+   (id
+    :reader id
+    :initarg :id
+    :type cl:integer
+    :initform 0))
 )
 
 (cl:defclass neighborpos (<neighborpos>)
@@ -46,6 +51,11 @@
 (cl:defmethod time_stamp-val ((m <neighborpos>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mymsg-msg:time_stamp-val is deprecated.  Use mymsg-msg:time_stamp instead.")
   (time_stamp m))
+
+(cl:ensure-generic-function 'id-val :lambda-list '(m))
+(cl:defmethod id-val ((m <neighborpos>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mymsg-msg:id-val is deprecated.  Use mymsg-msg:id instead.")
+  (id m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <neighborpos>) ostream)
   "Serializes a message object of type '<neighborpos>"
   (cl:let ((__ros_arr_len (cl:length (cl:slot-value msg 'xpos))))
@@ -87,6 +97,12 @@
     (cl:write-byte (cl:ldb (cl:byte 8 40) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 48) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 56) bits) ostream))
+  (cl:let* ((signed (cl:slot-value msg 'id)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) unsigned) ostream)
+    )
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <neighborpos>) istream)
   "Deserializes a message object of type '<neighborpos>"
@@ -136,6 +152,12 @@
       (cl:setf (cl:ldb (cl:byte 8 48) bits) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 56) bits) (cl:read-byte istream))
     (cl:setf (cl:slot-value msg 'time_stamp) (roslisp-utils:decode-double-float-bits bits)))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'id) (cl:if (cl:< unsigned 2147483648) unsigned (cl:- unsigned 4294967296))))
   msg
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<neighborpos>)))
@@ -146,21 +168,22 @@
   "mymsg/neighborpos")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<neighborpos>)))
   "Returns md5sum for a message object of type '<neighborpos>"
-  "3f32e5464578c19ccbb2ebfabda27e48")
+  "2b4b6c25254ec4f08814442766cebb75")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'neighborpos)))
   "Returns md5sum for a message object of type 'neighborpos"
-  "3f32e5464578c19ccbb2ebfabda27e48")
+  "2b4b6c25254ec4f08814442766cebb75")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<neighborpos>)))
   "Returns full string definition for message of type '<neighborpos>"
-  (cl:format cl:nil "float64[] xpos~%float64[] ypos~%float64 time_stamp~%~%~%"))
+  (cl:format cl:nil "float64[] xpos~%float64[] ypos~%float64 time_stamp~%int32 id~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'neighborpos)))
   "Returns full string definition for message of type 'neighborpos"
-  (cl:format cl:nil "float64[] xpos~%float64[] ypos~%float64 time_stamp~%~%~%"))
+  (cl:format cl:nil "float64[] xpos~%float64[] ypos~%float64 time_stamp~%int32 id~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <neighborpos>))
   (cl:+ 0
      4 (cl:reduce #'cl:+ (cl:slot-value msg 'xpos) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 8)))
      4 (cl:reduce #'cl:+ (cl:slot-value msg 'ypos) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 8)))
      8
+     4
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <neighborpos>))
   "Converts a ROS message object to a list"
@@ -168,4 +191,5 @@
     (cl:cons ':xpos (xpos msg))
     (cl:cons ':ypos (ypos msg))
     (cl:cons ':time_stamp (time_stamp msg))
+    (cl:cons ':id (id msg))
 ))

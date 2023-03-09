@@ -258,6 +258,21 @@ mymsg_gencpp/fast:
 .PHONY : mymsg_gencpp/fast
 
 # Convenience name for target.
+mymsg/CMakeFiles/_mymsg_generate_messages_check_deps_refpos.dir/rule:
+	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build && $(MAKE) -f CMakeFiles/Makefile2 mymsg/CMakeFiles/_mymsg_generate_messages_check_deps_refpos.dir/rule
+.PHONY : mymsg/CMakeFiles/_mymsg_generate_messages_check_deps_refpos.dir/rule
+
+# Convenience name for target.
+_mymsg_generate_messages_check_deps_refpos: mymsg/CMakeFiles/_mymsg_generate_messages_check_deps_refpos.dir/rule
+
+.PHONY : _mymsg_generate_messages_check_deps_refpos
+
+# fast build rule for target.
+_mymsg_generate_messages_check_deps_refpos/fast:
+	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build && $(MAKE) -f mymsg/CMakeFiles/_mymsg_generate_messages_check_deps_refpos.dir/build.make mymsg/CMakeFiles/_mymsg_generate_messages_check_deps_refpos.dir/build
+.PHONY : _mymsg_generate_messages_check_deps_refpos/fast
+
+# Convenience name for target.
 mymsg/CMakeFiles/mymsg_generate_messages_eus.dir/rule:
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build && $(MAKE) -f CMakeFiles/Makefile2 mymsg/CMakeFiles/mymsg_generate_messages_eus.dir/rule
 .PHONY : mymsg/CMakeFiles/mymsg_generate_messages_eus.dir/rule
@@ -588,6 +603,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... mymsg_genpy"
 	@echo "... mymsg_gencpp"
+	@echo "... _mymsg_generate_messages_check_deps_refpos"
 	@echo "... list_install_components"
 	@echo "... mymsg_generate_messages_eus"
 	@echo "... roscpp_generate_messages_py"

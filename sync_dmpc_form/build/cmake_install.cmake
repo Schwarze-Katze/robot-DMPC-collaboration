@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/gtest/cmake_install.cmake")
   include("/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg/cmake_install.cmake")
+  include("/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/formation/cmake_install.cmake")
   include("/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/vehicle01/cmake_install.cmake")
   include("/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/vehicle02/cmake_install.cmake")
   include("/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/vehicle03/cmake_install.cmake")

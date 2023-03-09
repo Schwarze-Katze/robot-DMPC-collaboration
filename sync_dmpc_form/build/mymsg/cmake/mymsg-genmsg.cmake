@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.cmake.em
 
-message(STATUS "mymsg: 1 messages, 0 services")
+message(STATUS "mymsg: 2 messages, 0 services")
 
 set(MSG_I_FLAGS "-Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg;-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg")
 
@@ -22,6 +22,11 @@ add_custom_target(_mymsg_generate_messages_check_deps_${_filename}
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mymsg" "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg" ""
 )
 
+get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" NAME_WE)
+add_custom_target(_mymsg_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mymsg" "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" ""
+)
+
 #
 #  langs = gencpp;geneus;genlisp;gennodejs;genpy
 #
@@ -30,6 +35,12 @@ add_custom_target(_mymsg_generate_messages_check_deps_${_filename}
 ### Generating Messages
 _generate_msg_cpp(mymsg
   "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mymsg
+)
+_generate_msg_cpp(mymsg
+  "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mymsg
@@ -51,6 +62,8 @@ add_dependencies(mymsg_generate_messages mymsg_generate_messages_cpp)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg" NAME_WE)
 add_dependencies(mymsg_generate_messages_cpp _mymsg_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" NAME_WE)
+add_dependencies(mymsg_generate_messages_cpp _mymsg_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(mymsg_gencpp)
@@ -63,6 +76,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS mymsg_generate_messages_cpp)
 ### Generating Messages
 _generate_msg_eus(mymsg
   "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mymsg
+)
+_generate_msg_eus(mymsg
+  "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mymsg
@@ -84,6 +103,8 @@ add_dependencies(mymsg_generate_messages mymsg_generate_messages_eus)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg" NAME_WE)
 add_dependencies(mymsg_generate_messages_eus _mymsg_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" NAME_WE)
+add_dependencies(mymsg_generate_messages_eus _mymsg_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(mymsg_geneus)
@@ -96,6 +117,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS mymsg_generate_messages_eus)
 ### Generating Messages
 _generate_msg_lisp(mymsg
   "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mymsg
+)
+_generate_msg_lisp(mymsg
+  "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mymsg
@@ -117,6 +144,8 @@ add_dependencies(mymsg_generate_messages mymsg_generate_messages_lisp)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg" NAME_WE)
 add_dependencies(mymsg_generate_messages_lisp _mymsg_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" NAME_WE)
+add_dependencies(mymsg_generate_messages_lisp _mymsg_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(mymsg_genlisp)
@@ -129,6 +158,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS mymsg_generate_messages_lisp)
 ### Generating Messages
 _generate_msg_nodejs(mymsg
   "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mymsg
+)
+_generate_msg_nodejs(mymsg
+  "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mymsg
@@ -150,6 +185,8 @@ add_dependencies(mymsg_generate_messages mymsg_generate_messages_nodejs)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg" NAME_WE)
 add_dependencies(mymsg_generate_messages_nodejs _mymsg_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" NAME_WE)
+add_dependencies(mymsg_generate_messages_nodejs _mymsg_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(mymsg_gennodejs)
@@ -162,6 +199,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS mymsg_generate_messages_nodejs)
 ### Generating Messages
 _generate_msg_py(mymsg
   "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mymsg
+)
+_generate_msg_py(mymsg
+  "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mymsg
@@ -182,6 +225,8 @@ add_dependencies(mymsg_generate_messages mymsg_generate_messages_py)
 
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg" NAME_WE)
+add_dependencies(mymsg_generate_messages_py _mymsg_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg" NAME_WE)
 add_dependencies(mymsg_generate_messages_py _mymsg_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility

@@ -26,12 +26,14 @@ struct neighborpos_
   neighborpos_()
     : xpos()
     , ypos()
-    , time_stamp(0.0)  {
+    , time_stamp(0.0)
+    , id(0)  {
     }
   neighborpos_(const ContainerAllocator& _alloc)
     : xpos(_alloc)
     , ypos(_alloc)
-    , time_stamp(0.0)  {
+    , time_stamp(0.0)
+    , id(0)  {
   (void)_alloc;
     }
 
@@ -45,6 +47,9 @@ struct neighborpos_
 
    typedef double _time_stamp_type;
   _time_stamp_type time_stamp;
+
+   typedef int32_t _id_type;
+  _id_type id;
 
 
 
@@ -77,7 +82,8 @@ bool operator==(const ::mymsg::neighborpos_<ContainerAllocator1> & lhs, const ::
 {
   return lhs.xpos == rhs.xpos &&
     lhs.ypos == rhs.ypos &&
-    lhs.time_stamp == rhs.time_stamp;
+    lhs.time_stamp == rhs.time_stamp &&
+    lhs.id == rhs.id;
 }
 
 template<typename ContainerAllocator1, typename ContainerAllocator2>
@@ -134,12 +140,12 @@ struct MD5Sum< ::mymsg::neighborpos_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "3f32e5464578c19ccbb2ebfabda27e48";
+    return "2b4b6c25254ec4f08814442766cebb75";
   }
 
   static const char* value(const ::mymsg::neighborpos_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x3f32e5464578c19cULL;
-  static const uint64_t static_value2 = 0xcbb2ebfabda27e48ULL;
+  static const uint64_t static_value1 = 0x2b4b6c25254ec4f0ULL;
+  static const uint64_t static_value2 = 0x8814442766cebb75ULL;
 };
 
 template<class ContainerAllocator>
@@ -161,6 +167,7 @@ struct Definition< ::mymsg::neighborpos_<ContainerAllocator> >
     return "float64[] xpos\n"
 "float64[] ypos\n"
 "float64 time_stamp\n"
+"int32 id\n"
 ;
   }
 
@@ -182,6 +189,7 @@ namespace serialization
       stream.next(m.xpos);
       stream.next(m.ypos);
       stream.next(m.time_stamp);
+      stream.next(m.id);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -214,6 +222,8 @@ struct Printer< ::mymsg::neighborpos_<ContainerAllocator> >
     }
     s << indent << "time_stamp: ";
     Printer<double>::stream(s, indent + "  ", v.time_stamp);
+    s << indent << "id: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.id);
   }
 };
 

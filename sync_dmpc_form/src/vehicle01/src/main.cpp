@@ -13,14 +13,17 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <numeric>
 #include "mymsg/neighborpos.h"
 #include "mymsg/refpos.h"
 #include "std_msgs/String.h"
 
 
-
+const int vehicleId = 1;
 size_t N = 15;
 size_t m = 2;// represent the num of neighbors for this vehicle
+std::vector<int> neigId;
+std::vector<bool> first_solution;
 double Hz = 5.0;
 size_t update_shift = 0;
 
@@ -45,8 +48,6 @@ bool solve_success = false;
 
 // each vehicle may have different solving time for the intial solution;
 // some of them might be quite long; So these flags are used for synchronous purpose;
-bool first_solution_v1 = false;
-bool first_solution_v2 = false;
 
 double d = 0.5;
 double ts = 1.0 / Hz;
@@ -60,16 +61,14 @@ std::shared_ptr<BatchSolver> bs(new BatchSolver(N, xr, yr, thetar, d, xinit, yin
 ros::Publisher vehicle_pub;// for visulization
 ros::Publisher markerArray;
 ros::Publisher neig_pub;// tells other robots my pos
-ros::Subscriber sub1;
-ros::Subscriber sub2;
+std::vector<ros::Subscriber> subs;
 ros::Subscriber subRef;
 //ros::Subscriber testsub;
 
 void UpdateVisualize();
 void UpdateNeighborsPos();
 void Initialize(ros::NodeHandle& n);
-void NeighborCallback1(const mymsg::neighborpos& msg);
-void NeighborCallback2(const mymsg::neighborpos& msg);
+void NeighborCallback(const mymsg::neighborpos& msg);
 void UpdateReference(const mymsg::refpos& msg);
 
 int main(int argc, char* argv[]) {
@@ -91,6 +90,12 @@ int main(int argc, char* argv[]) {
 };
 
 void Initialize(ros::NodeHandle& n) {
+    neigId.resize(m);
+    std::iota(neigId.begin(), neigId.end(), 1);
+    for (int i = vehicleId - 1;i < m;++i) {
+        ++neigId[i];
+    }
+    first_solution = std::vector<bool>(m + 1, false);
 #if 1
     // test setting 1	
     xinit = -10.0;yinit = 10.0;thetainit = 0;
@@ -154,6 +159,7 @@ void Initialize(ros::NodeHandle& n) {
     obst.push_back(obst1);
     neig.push_back(neig1);
     neig.push_back(neig2);
+    assert(neig.size() == m);
     bs->set_obst_(obst);
     bs->set_ref_states(xr, yr, thetar);
     bs->set_initial_states(xinit, yinit, thetainit);
@@ -163,9 +169,10 @@ void Initialize(ros::NodeHandle& n) {
 
     vehicle_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 10);
     markerArray = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 10);
-    neig_pub = n.advertise<mymsg::neighborpos>("neig1pos", 10);
-    sub1 = n.subscribe("neig2pos", 1000, NeighborCallback1);
-    sub2 = n.subscribe("neig3pos", 1000, NeighborCallback2);
+    neig_pub = n.advertise<mymsg::neighborpos>("neig" + std::to_string(vehicleId) + "pos", 10);
+    for (auto id : neigId) {
+        subs.push_back(n.subscribe("neig" + std::to_string(id) + "pos", 1000, NeighborCallback));
+    }
     subRef = n.subscribe("formation", 1000, UpdateReference);
     //subRef = n.subscribe("refPointPos", 1000, refCallback);
     // testsub = n.subscribe("chatter", 1000, chatterCallback);
@@ -205,6 +212,7 @@ void UpdateVisualize() {
             msg.xpos = pre_x;
             msg.ypos = pre_y;
             msg.time_stamp = ros::Time::now().toSec();
+            msg.id = vehicleId;
             neig_pub.publish(msg);
         }
         else {// if fail to solve, publish the shifted pre_states
@@ -226,6 +234,7 @@ void UpdateVisualize() {
                 msg.xpos = pre_x;
                 msg.ypos = pre_y;
                 msg.time_stamp = ros::Time::now().toSec();
+                msg.id = vehicleId;
                 neig_pub.publish(msg);
             }
             else {
@@ -236,9 +245,11 @@ void UpdateVisualize() {
 
         ros::spinOnce();// send the solution ASAP after the solving
         loop_rate_sim.sleep();
-
-        while (first_solution_v1 == false || first_solution_v2 == false) { };
-
+        for (bool tmp = false;!tmp;tmp = false) {
+            for (int i = 0;i < first_solution.size();++i) {
+                tmp |= !first_solution[i];
+            }
+        }
         if (solve_success) {
             solve_success = false;
             vehicle->UpdateStates(pre_inputs[0][0], pre_inputs[0][1]);
@@ -271,30 +282,19 @@ void UpdateVisualize() {
 
 };
 
-void NeighborCallback1(const mymsg::neighborpos& msg) {
+void NeighborCallback(const mymsg::neighborpos& msg) {
+    int id = msg.id - 1;//id=0...m
+    assert(id >= 0 and id < m + 1);
     std::vector<double> x = msg.xpos;
     std::vector<double> y = msg.ypos;
     std::lock_guard<std::mutex> lk(neig_mtx);
     for (size_t i = 1; i < neig[0].size();i++) {
-        neig[0][i - 1][0] = x[i];
-        neig[0][i - 1][1] = y[i];
+        neig[id][i - 1][0] = x[i];
+        neig[id][i - 1][1] = y[i];
     }
-    neig[0][neig[0].size() - 1][0] = neig[0][neig[0].size() - 2][0];
-    neig[0][neig[0].size() - 1][1] = neig[0][neig[0].size() - 2][1];
-    first_solution_v1 = true;
-};
-void NeighborCallback2(const mymsg::neighborpos& msg) {
-    std::vector<double> x = msg.xpos;
-    std::vector<double> y = msg.ypos;
-    std::lock_guard<std::mutex> lk(neig_mtx);
-    for (int i = 1; i < neig[0].size();i++) {
-        neig[1][i - 1][0] = x[i];
-        neig[1][i - 1][1] = y[i];
-
-    }
-    neig[1][neig[1].size() - 1][0] = neig[1][neig[1].size() - 2][0];
-    neig[1][neig[1].size() - 1][1] = neig[1][neig[1].size() - 2][1];
-    first_solution_v2 = true;
+    neig[id][neig[id].size() - 1][0] = neig[id][neig[id].size() - 2][0];
+    neig[id][neig[id].size() - 1][1] = neig[id][neig[id].size() - 2][1];
+    first_solution[id] = true;
 };
 
 //void refCallback(const mymsg::refpos& msg) {

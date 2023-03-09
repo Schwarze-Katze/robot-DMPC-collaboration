@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/buil
 include mymsg/CMakeFiles/mymsg_generate_messages_eus.dir/progress.make
 
 mymsg/CMakeFiles/mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg/neighborpos.l
+mymsg/CMakeFiles/mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg/refpos.l
 mymsg/CMakeFiles/mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/manifest.l
 
 
@@ -62,12 +63,18 @@ mymsg/CMakeFiles/mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robo
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating EusLisp code from mymsg/neighborpos.msg"
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg
 
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg/refpos.l: /opt/ros/melodic/lib/geneus/gen_eus.py
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg/refpos.l: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp code from mymsg/refpos.msg"
+	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg
+
 /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/manifest.l: /opt/ros/melodic/lib/geneus/gen_eus.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp manifest code for mymsg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating EusLisp manifest code for mymsg"
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py -m -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg mymsg std_msgs
 
 mymsg_generate_messages_eus: mymsg/CMakeFiles/mymsg_generate_messages_eus
 mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg/neighborpos.l
+mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/msg/refpos.l
 mymsg_generate_messages_eus: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/roseus/ros/mymsg/manifest.l
 mymsg_generate_messages_eus: mymsg/CMakeFiles/mymsg_generate_messages_eus.dir/build.make
 

@@ -21,6 +21,7 @@ class neighborpos {
       this.xpos = null;
       this.ypos = null;
       this.time_stamp = null;
+      this.id = null;
     }
     else {
       if (initObj.hasOwnProperty('xpos')) {
@@ -41,6 +42,12 @@ class neighborpos {
       else {
         this.time_stamp = 0.0;
       }
+      if (initObj.hasOwnProperty('id')) {
+        this.id = initObj.id
+      }
+      else {
+        this.id = 0;
+      }
     }
   }
 
@@ -52,6 +59,8 @@ class neighborpos {
     bufferOffset = _arraySerializer.float64(obj.ypos, buffer, bufferOffset, null);
     // Serialize message field [time_stamp]
     bufferOffset = _serializer.float64(obj.time_stamp, buffer, bufferOffset);
+    // Serialize message field [id]
+    bufferOffset = _serializer.int32(obj.id, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -65,6 +74,8 @@ class neighborpos {
     data.ypos = _arrayDeserializer.float64(buffer, bufferOffset, null)
     // Deserialize message field [time_stamp]
     data.time_stamp = _deserializer.float64(buffer, bufferOffset);
+    // Deserialize message field [id]
+    data.id = _deserializer.int32(buffer, bufferOffset);
     return data;
   }
 
@@ -72,7 +83,7 @@ class neighborpos {
     let length = 0;
     length += 8 * object.xpos.length;
     length += 8 * object.ypos.length;
-    return length + 16;
+    return length + 20;
   }
 
   static datatype() {
@@ -82,7 +93,7 @@ class neighborpos {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '3f32e5464578c19ccbb2ebfabda27e48';
+    return '2b4b6c25254ec4f08814442766cebb75';
   }
 
   static messageDefinition() {
@@ -91,6 +102,7 @@ class neighborpos {
     float64[] xpos
     float64[] ypos
     float64 time_stamp
+    int32 id
     
     `;
   }
@@ -120,6 +132,13 @@ class neighborpos {
     }
     else {
       resolved.time_stamp = 0.0
+    }
+
+    if (msg.id !== undefined) {
+      resolved.id = msg.id;
+    }
+    else {
+      resolved.id = 0
     }
 
     return resolved;

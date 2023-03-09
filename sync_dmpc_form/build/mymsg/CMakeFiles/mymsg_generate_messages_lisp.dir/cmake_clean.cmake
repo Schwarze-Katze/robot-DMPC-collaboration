@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/mymsg_generate_messages_lisp"
   "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/common-lisp/ros/mymsg/msg/neighborpos.lisp"
+  "/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/common-lisp/ros/mymsg/msg/refpos.lisp"
 )
 
 # Per-language clean rules from dependency scanning.

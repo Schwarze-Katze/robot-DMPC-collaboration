@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/buil
 include mymsg/CMakeFiles/mymsg_generate_messages_nodejs.dir/progress.make
 
 mymsg/CMakeFiles/mymsg_generate_messages_nodejs: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/neighborpos.js
+mymsg/CMakeFiles/mymsg_generate_messages_nodejs: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/refpos.js
 
 
 /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/neighborpos.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
@@ -61,8 +62,14 @@ mymsg/CMakeFiles/mymsg_generate_messages_nodejs: /home/uav/catkin_ws/src/Multi_R
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Javascript code from mymsg/neighborpos.msg"
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg
 
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/refpos.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/refpos.js: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Javascript code from mymsg/refpos.msg"
+	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg
+
 mymsg_generate_messages_nodejs: mymsg/CMakeFiles/mymsg_generate_messages_nodejs
 mymsg_generate_messages_nodejs: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/neighborpos.js
+mymsg_generate_messages_nodejs: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/share/gennodejs/ros/mymsg/msg/refpos.js
 mymsg_generate_messages_nodejs: mymsg/CMakeFiles/mymsg_generate_messages_nodejs.dir/build.make
 
 .PHONY : mymsg_generate_messages_nodejs

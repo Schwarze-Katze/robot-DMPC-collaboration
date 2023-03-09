@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/buil
 include mymsg/CMakeFiles/mymsg_generate_messages_cpp.dir/progress.make
 
 mymsg/CMakeFiles/mymsg_generate_messages_cpp: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/neighborpos.h
+mymsg/CMakeFiles/mymsg_generate_messages_cpp: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/refpos.h
 
 
 /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/neighborpos.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
@@ -62,8 +63,15 @@ mymsg/CMakeFiles/mymsg_generate_messages_cpp: /home/uav/catkin_ws/src/Multi_Robo
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code from mymsg/neighborpos.msg"
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg && /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg -e /opt/ros/melodic/share/gencpp/cmake/..
 
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/refpos.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/refpos.h: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/refpos.h: /opt/ros/melodic/share/gencpp/msg.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating C++ code from mymsg/refpos.msg"
+	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg && /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg -e /opt/ros/melodic/share/gencpp/cmake/..
+
 mymsg_generate_messages_cpp: mymsg/CMakeFiles/mymsg_generate_messages_cpp
 mymsg_generate_messages_cpp: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/neighborpos.h
+mymsg_generate_messages_cpp: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/refpos.h
 mymsg_generate_messages_cpp: mymsg/CMakeFiles/mymsg_generate_messages_cpp.dir/build.make
 
 .PHONY : mymsg_generate_messages_cpp

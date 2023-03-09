@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/buil
 include mymsg/CMakeFiles/mymsg_generate_messages_py.dir/progress.make
 
 mymsg/CMakeFiles/mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_neighborpos.py
+mymsg/CMakeFiles/mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_refpos.py
 mymsg/CMakeFiles/mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/__init__.py
 
 
@@ -62,13 +63,20 @@ mymsg/CMakeFiles/mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robot
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python from MSG mymsg/neighborpos"
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/neighborpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg
 
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_refpos.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_refpos.py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python from MSG mymsg/refpos"
+	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg/refpos.msg -Imymsg:/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/mymsg/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p mymsg -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg
+
 /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/__init__.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
 /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/__init__.py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_neighborpos.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python msg __init__.py for mymsg"
+/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/__init__.py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_refpos.py
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Python msg __init__.py for mymsg"
 	cd /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/build/mymsg && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg --initpy
 
 mymsg_generate_messages_py: mymsg/CMakeFiles/mymsg_generate_messages_py
 mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_neighborpos.py
+mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/_refpos.py
 mymsg_generate_messages_py: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/lib/python2.7/dist-packages/mymsg/msg/__init__.py
 mymsg_generate_messages_py: mymsg/CMakeFiles/mymsg_generate_messages_py.dir/build.make
 

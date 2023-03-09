@@ -8,15 +8,16 @@ import struct
 
 
 class neighborpos(genpy.Message):
-  _md5sum = "3f32e5464578c19ccbb2ebfabda27e48"
+  _md5sum = "2b4b6c25254ec4f08814442766cebb75"
   _type = "mymsg/neighborpos"
   _has_header = False  # flag to mark the presence of a Header object
   _full_text = """float64[] xpos
 float64[] ypos
 float64 time_stamp
+int32 id
 """
-  __slots__ = ['xpos','ypos','time_stamp']
-  _slot_types = ['float64[]','float64[]','float64']
+  __slots__ = ['xpos','ypos','time_stamp','id']
+  _slot_types = ['float64[]','float64[]','float64','int32']
 
   def __init__(self, *args, **kwds):
     """
@@ -26,7 +27,7 @@ float64 time_stamp
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       xpos,ypos,time_stamp
+       xpos,ypos,time_stamp,id
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -41,10 +42,13 @@ float64 time_stamp
         self.ypos = []
       if self.time_stamp is None:
         self.time_stamp = 0.
+      if self.id is None:
+        self.id = 0
     else:
       self.xpos = []
       self.ypos = []
       self.time_stamp = 0.
+      self.id = 0
 
   def _get_types(self):
     """
@@ -66,8 +70,8 @@ float64 time_stamp
       buff.write(_struct_I.pack(length))
       pattern = '<%sd'%length
       buff.write(struct.Struct(pattern).pack(*self.ypos))
-      _x = self.time_stamp
-      buff.write(_get_struct_d().pack(_x))
+      _x = self
+      buff.write(_get_struct_di().pack(_x.time_stamp, _x.id))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -96,9 +100,10 @@ float64 time_stamp
       s = struct.Struct(pattern)
       end += s.size
       self.ypos = s.unpack(str[start:end])
+      _x = self
       start = end
-      end += 8
-      (self.time_stamp,) = _get_struct_d().unpack(str[start:end])
+      end += 12
+      (_x.time_stamp, _x.id,) = _get_struct_di().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -119,8 +124,8 @@ float64 time_stamp
       buff.write(_struct_I.pack(length))
       pattern = '<%sd'%length
       buff.write(self.ypos.tostring())
-      _x = self.time_stamp
-      buff.write(_get_struct_d().pack(_x))
+      _x = self
+      buff.write(_get_struct_di().pack(_x.time_stamp, _x.id))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -150,9 +155,10 @@ float64 time_stamp
       s = struct.Struct(pattern)
       end += s.size
       self.ypos = numpy.frombuffer(str[start:end], dtype=numpy.float64, count=length)
+      _x = self
       start = end
-      end += 8
-      (self.time_stamp,) = _get_struct_d().unpack(str[start:end])
+      end += 12
+      (_x.time_stamp, _x.id,) = _get_struct_di().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -161,9 +167,9 @@ _struct_I = genpy.struct_I
 def _get_struct_I():
     global _struct_I
     return _struct_I
-_struct_d = None
-def _get_struct_d():
-    global _struct_d
-    if _struct_d is None:
-        _struct_d = struct.Struct("<d")
-    return _struct_d
+_struct_di = None
+def _get_struct_di():
+    global _struct_di
+    if _struct_di is None:
+        _struct_di = struct.Struct("<di")
+    return _struct_di

@@ -6,6 +6,7 @@ vehicle01/CMakeFiles/vehicle01.dir/src/batch_solver.cpp.o: /home/uav/catkin_ws/s
 vehicle01/CMakeFiles/vehicle01.dir/src/batch_solver.cpp.o: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/vehicle01/src/fg_eval.h
 
 vehicle01/CMakeFiles/vehicle01.dir/src/main.cpp.o: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/neighborpos.h
+vehicle01/CMakeFiles/vehicle01.dir/src/main.cpp.o: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/devel/include/mymsg/refpos.h
 vehicle01/CMakeFiles/vehicle01.dir/src/main.cpp.o: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/vehicle01/src/batch_solver.h
 vehicle01/CMakeFiles/vehicle01.dir/src/main.cpp.o: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/vehicle01/src/fg_eval.h
 vehicle01/CMakeFiles/vehicle01.dir/src/main.cpp.o: /home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/src/vehicle01/src/main.cpp
