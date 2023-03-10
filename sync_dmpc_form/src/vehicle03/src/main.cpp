@@ -96,11 +96,12 @@ void Initialize(ros::NodeHandle& n) {
 		++neigId[i];
 	}
 	first_solution = std::vector<bool>(m + 1, false);
+	first_solution[vehicleId - 1] = true;
 	// test setting 1
 #if 1
-	xinit = 0.0;yinit = 5.0;thetainit = -1.57;
+	xinit = 10.0;yinit = 10.0;thetainit = -1.57;
 	xr = 0.0;yr = -5.0;thetar = 0.0;
-	std::vector<double> obst1 = { 0.0,0.0 };
+	std::vector<double> obst1 = { 0.0,15.0 };
 	std::vector<std::vector<double>> neig1(N + 1, std::vector<double>{-5.0, 0.0});
 	std::vector<std::vector<double>> neig2(N + 1, std::vector<double>{5.0, 0.0});
 #endif
@@ -194,6 +195,7 @@ void UpdateVisualize() {
 		bs->Solve(pre_states, pre_inputs, solve_success);
 		std::cout << "V03-init:" << xinit << ',' << yinit << "\tV03-ref:" << xr << ',' << yr << std::endl;
 		//Status publishing
+		std::cout << "success = " << solve_success << std::endl;
 		if (solve_success) {
 			update_shift = 0;
 			std::vector<double> pre_x;
@@ -239,9 +241,12 @@ void UpdateVisualize() {
 
 		ros::spinOnce();// send the solution ASAP after the solving
 		loop_rate_sim.sleep();
-		for (bool tmp = false;!tmp;tmp = false) {
+		for (int i = 0;i < first_solution.size();++i) {
+			std::cout << first_solution[i] << std::endl;
+		}
+		for (bool tmp = true;tmp;tmp = true) {
 			for (int i = 0;i < first_solution.size();++i) {
-				tmp |= !first_solution[i];
+				tmp &= first_solution[i];
 			}
 		}
 		if (solve_success) {
@@ -250,6 +255,7 @@ void UpdateVisualize() {
 			// std::cout<<"1:vl="<<pre_inputs[0][0]<<",1:vr="<<pre_inputs[0][1]<<std::endl;
 		}
 		else {// if fail to solve, use shifted input in the last iteration
+			std::cout << "upd shift = " << update_shift << std::endl;
 			if (update_shift < N) {
 				vehicle->UpdateStates(pre_inputs[update_shift][0], pre_inputs[update_shift][1]);
 				// std::cout<<"1:vl="<<pre_inputs[update_shift][0]<<"1:vr="<<pre_inputs[update_shift][1]<<std::endl;
@@ -278,6 +284,7 @@ void UpdateVisualize() {
 
 void NeighborCallback(const mymsg::neighborpos& msg) {
 	int id = msg.id - 1;//id=0...m
+	std::cout << "v3 << meigmsg" << id << std::endl;
 	assert(id >= 0 and id < m + 1);
 	std::vector<double> x = msg.xpos;
 	std::vector<double> y = msg.ypos;
@@ -296,8 +303,8 @@ void NeighborCallback(const mymsg::neighborpos& msg) {
 //};
 
 void UpdateReference(const mymsg::refpos& msg) {
-	xr = msg.xr[0];
-	yr = msg.yr[0];
-	thetar = msg.thetar[0];
-	std::cout << "ref:" << xr << ',' << yr << ',' << thetar << std::endl;
+	xr = msg.xr[vehicleId - 1];
+	yr = msg.yr[vehicleId - 1];
+	thetar = msg.thetar[vehicleId - 1];
+	// std::cout << "ref:" << xr << ',' << yr << ',' << thetar << std::endl;
 }

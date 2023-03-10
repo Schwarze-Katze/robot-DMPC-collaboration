@@ -96,6 +96,7 @@ void Initialize(ros::NodeHandle& n) {
 		++neigId[i];
 	}
 	first_solution = std::vector<bool>(m + 1, false);
+	first_solution[vehicleId - 1] = true;
 #if 1
 	// test setting 1
 	xinit = 0.0;yinit = 10.0;thetainit = 0.0;
@@ -238,9 +239,9 @@ void UpdateVisualize() {
 
 		ros::spinOnce();// send the solution ASAP after the solving
 		loop_rate_sim.sleep();
-		for (bool tmp = false;!tmp;tmp = false) {
+		for (bool tmp = true;tmp;tmp = true) {
 			for (int i = 0;i < first_solution.size();++i) {
-				tmp |= !first_solution[i];
+				tmp &= first_solution[i];
 			}
 		}
 		if (solve_success) {
@@ -295,8 +296,8 @@ void NeighborCallback(const mymsg::neighborpos& msg) {
 //};
 
 void UpdateReference(const mymsg::refpos& msg) {
-	xr = msg.xr[0];
-	yr = msg.yr[0];
-	thetar = msg.thetar[0];
+	xr = msg.xr[vehicleId - 1];
+	yr = msg.yr[vehicleId - 1];
+	thetar = msg.thetar[vehicleId - 1];
 	std::cout << "ref:" << xr << ',' << yr << ',' << thetar << std::endl;
 }

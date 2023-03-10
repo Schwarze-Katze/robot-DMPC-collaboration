@@ -77,7 +77,6 @@ int main(int argc, char* argv[]) {
     ros::Rate loop_rate(50);
     Initialize(n);
 
-
     std::thread sim_thread(&UpdateVisualize);
     sim_thread.detach();
 
@@ -96,6 +95,7 @@ void Initialize(ros::NodeHandle& n) {
         ++neigId[i];
     }
     first_solution = std::vector<bool>(m + 1, false);
+    first_solution[vehicleId - 1] = true;
 #if 1
     // test setting 1	
     xinit = -10.0;yinit = 10.0;thetainit = 0;
@@ -103,8 +103,8 @@ void Initialize(ros::NodeHandle& n) {
     yr = 5.0;
     thetar = 0.0;
     std::vector<double> obst1 = { 0.0, 15.0 };
-    std::vector<std::vector<double>> neig1(N + 1, std::vector<double>{5.0, 0.0});
-    std::vector<std::vector<double>> neig2(N + 1, std::vector<double>{0.0, 5.0});
+    std::vector<std::vector<double>> neig1(N + 1, std::vector<double>{0.0, 10.0});
+    std::vector<std::vector<double>> neig2(N + 1, std::vector<double>{10.0, 10.0});
 #endif
 
 #if 0
@@ -184,7 +184,7 @@ void UpdateVisualize() {
 
     ros::spinOnce();
     loop_rate_sim.sleep();
-
+    std::cout << "this way 1" << std::endl;
     while (ros::ok()) {
 
         /**
@@ -200,7 +200,9 @@ void UpdateVisualize() {
         bs->Solve(pre_states, pre_inputs, solve_success);
         std::cout << "V01-init:" << xinit << ',' << yinit << "\tV01-ref:" << xr << ',' << yr << std::endl;
         //Status publishing
+        std::cout << "success = " << solve_success << std::endl;
         if (solve_success) {
+            std::cout << "this way 2" << std::endl;
             update_shift = 0;
             std::vector<double> pre_x;
             std::vector<double> pre_y;
@@ -214,10 +216,12 @@ void UpdateVisualize() {
             msg.time_stamp = ros::Time::now().toSec();
             msg.id = vehicleId;
             neig_pub.publish(msg);
+            std::cout << "this way 3" << std::endl;
         }
         else {// if fail to solve, publish the shifted pre_states
             update_shift++;
-            // std::cout<<" ***publish previous states : "<< update_shift <<" ***"<<std::endl;		
+            // std::cout<<" ***publish previous states : "<< update_shift <<" ***"<<std::endl;
+            std::cout << "this way 4" << std::endl;
             if (update_shift < N) {
                 std::vector<double> pre_x;
                 std::vector<double> pre_y;
@@ -236,18 +240,24 @@ void UpdateVisualize() {
                 msg.time_stamp = ros::Time::now().toSec();
                 msg.id = vehicleId;
                 neig_pub.publish(msg);
+                std::cout << "this way 5" << std::endl;
+
             }
             else {
-                // std::cout<<" *** !!! no more previous states !!! *** "<<std::endl;
+                std::cout<<" *** !!! no more previous states !!! *** "<<std::endl;
                 return;
             }
         }
 
         ros::spinOnce();// send the solution ASAP after the solving
         loop_rate_sim.sleep();
-        for (bool tmp = false;!tmp;tmp = false) {
+        std::cout << "this way 6" << std::endl;
+        for (int i = 0;i < first_solution.size();++i) {
+            std::cout << first_solution[i] << std::endl;
+        }
+        for (bool tmp = true;tmp;tmp = true) {
             for (int i = 0;i < first_solution.size();++i) {
-                tmp |= !first_solution[i];
+                tmp &= first_solution[i];
             }
         }
         if (solve_success) {
@@ -302,8 +312,8 @@ void NeighborCallback(const mymsg::neighborpos& msg) {
 //};
 
 void UpdateReference(const mymsg::refpos& msg) {
-    xr = msg.xr[0];
-    yr = msg.yr[0];
-    thetar = msg.thetar[0];
-    std::cout << "ref:" << xr << ',' << yr << ',' << thetar << std::endl;
+    xr = msg.xr[vehicleId - 1];
+    yr = msg.yr[vehicleId - 1];
+    thetar = msg.thetar[vehicleId - 1];
+    // std::cout << "ref:" << xr << ',' << yr << ',' << thetar << std::endl;
 }
