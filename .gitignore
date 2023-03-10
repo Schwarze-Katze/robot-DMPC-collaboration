@@ -1,18 +1,10 @@
 sync_dmpc_form/devel/
-/logs/
+centerized_form/devel/
+logs/*
 sync_dmpc_form/build/
+centerized_form/build/
 bin/
 lib/
-msg_gen/
-srv_gen/
-msg/*Action.msg
-msg/*ActionFeedback.msg
-msg/*ActionGoal.msg
-msg/*ActionResult.msg
-msg/*Feedback.msg
-msg/*Goal.msg
-msg/*Result.msg
-msg/_*.py
 build_isolated/
 devel_isolated/
 
@@ -38,9 +30,6 @@ srv/_*.py
 qtcreator-*
 *.user
 
-/planning/cfg
-/planning/docs
-/planning/src
 
 *~
 

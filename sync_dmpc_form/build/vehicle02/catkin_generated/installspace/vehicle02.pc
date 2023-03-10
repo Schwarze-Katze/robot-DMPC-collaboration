@@ -1,8 +1,0 @@
-prefix=/home/uav/catkin_ws/src/Multi_Robots_DMPC/sync_dmpc_form/install
-
-Name: vehicle02
-Description: Description of vehicle02
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: roscpp message_runtime
