@@ -1,0 +1,6 @@
+<launch>
+<node pkg="centralized_form" type="centralized_form" name="vehicle"/>
+<node name="rviz" pkg="rviz" type="rviz"
+        args="-d /home/auto/dmpc_ws/src/centralized_form/myrvizdefault.rviz" /> 
+
+</launch>

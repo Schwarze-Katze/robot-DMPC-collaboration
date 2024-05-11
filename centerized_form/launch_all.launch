@@ -1,6 +1,0 @@
-<launch>
-<node pkg="centerized_form" type="centerized_form" name="vehicle"/>
-<node name="rviz" pkg="rviz" type="rviz"
-        args="-d /home/auto/dmpc_ws/src/centerized_form/myrvizdefault.rviz" /> 
-
-</launch>

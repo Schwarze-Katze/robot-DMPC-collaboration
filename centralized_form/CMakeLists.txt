@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(centerized_form)
+project(centralized_form)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES my_frontier_exploration
@@ -29,11 +29,11 @@ SET(source_list
 	
 )
 #
-ADD_EXECUTABLE(centerized_form ${source_list})
+ADD_EXECUTABLE(centralized_form ${source_list})
 #
 # libraries to be linked into the specified target,
 # as determined by pkg-config for ipopt
-TARGET_LINK_LIBRARIES(centerized_form
+TARGET_LINK_LIBRARIES(centralized_form
     ${cppad_lib}
     /usr/local/lib/libipopt.so
     ${colpack_libs}

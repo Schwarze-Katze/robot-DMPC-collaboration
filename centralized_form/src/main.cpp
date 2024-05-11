@@ -34,7 +34,7 @@ void Initialize(ros::NodeHandle& n);
 
 
 int main(int argc, char* argv[]) {
-    ros::init(argc, argv, "centerilized");
+    ros::init(argc, argv, "centralized");
     ros::NodeHandle n;
     ros::Rate loop_rate(Hz);
     Initialize(n);
