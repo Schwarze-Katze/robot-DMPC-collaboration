@@ -25,7 +25,7 @@ bool BatchSolver::Solve(std::vector<std::vector<std::vector<double>>>& pre_state
         for (size_t i = 0; i < num_states; i++) {
             xi[i] = 0.0;
         }
-    }	
+    }
 else {
         for (size_t i = 0; i < num_states; i++) {
             xi[i] = warmstart_[i];

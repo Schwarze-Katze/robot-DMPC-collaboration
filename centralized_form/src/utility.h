@@ -113,7 +113,41 @@ void ShowVehicleInRviz(const std::vector<double> x, const std::vector<double> y,
     }
     pub.publish(ma);
     ma.markers.clear();
-
 }
+
+void ShowRefPoint(const std::vector<double> x, const std::vector<double> y, const std::vector<double> theta, const ros::Publisher& pub) {
+    visualization_msgs::MarkerArray ma;
+    for (int i = 0; i < x.size(); ++i) {
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "map";
+        marker.header.stamp = ros::Time::now();
+        marker.id = i + 2000;
+        marker.type = visualization_msgs::Marker::SPHERE;//球形表示
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.pose.position.x = x[i];
+        marker.pose.position.y = y[i];
+        marker.pose.position.z = 0;
+        marker.pose.orientation.x = sin(theta[i] / 2.0) * 0.0;
+        marker.pose.orientation.y = sin(theta[i] / 2.0) * 0.0;
+        marker.pose.orientation.z = sin(theta[i] / 2.0) * 1.0;
+        marker.pose.orientation.w = cos(theta[i] / 2.0);
+        marker.scale.x = 0.3;
+        marker.scale.y = 0.3;
+        marker.scale.z = 0.3;
+        marker.color.r = 0.7f * (1.0 - i / x.size());
+        marker.color.g = 0.3f;
+        marker.color.b = 1.0f * i / x.size();
+        marker.color.a = 1.0;
+        marker.lifetime = ros::Duration();
+        ma.markers.push_back(marker);
+    }
+    pub.publish(ma);
+}
+
+double dis2d(double x1, double y1, double x2, double y2) {
+    auto dx = x1 - x2;
+    auto dy = y1 - y2;
+    return std::sqrt(dx * dx + dy * dy);
+};
 
 #endif 

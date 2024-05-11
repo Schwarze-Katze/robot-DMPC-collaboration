@@ -10,6 +10,9 @@ size_t N = 10;//求解输出预测长度
 size_t m = 3;
 size_t Hz = 10;
 size_t shift = 0;
+std::vector<double> xorigin;
+std::vector<double> yorigin;
+std::vector<double> thetaorigin;
 std::vector<double> xref;
 std::vector<double> yref;
 std::vector<double> thetaref;
@@ -19,9 +22,11 @@ std::vector<double> yinit;
 std::vector<double> thetainit;
 double ts = 0.1;
 double safety_dist = 0.5;
+double distanceThreshold = safety_dist * 0.5;
 bool solve_success = false;
 std::vector<std::shared_ptr<Vehicle>> vehicles;
 std::vector<std::vector<double>> obst;
+std::vector<std::vector<std::vector<double>>> goals;
 std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xref, yref, thetaref, d, xinit, yinit, thetainit, ts, safety_dist, obst));
 std::vector<std::vector<std::vector<double>>> pre_states(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(3, 0.0)));
 std::vector<std::vector<std::vector<double>>> pre_inputs(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(2, 0.0)));
@@ -30,6 +35,7 @@ ros::Publisher markerArray;
 
 void RunMPC();
 void UpdateNeighborsPos();
+void UpdateRef();
 void Initialize(ros::NodeHandle& n);
 
 
@@ -50,17 +56,6 @@ int main(int argc, char* argv[]) {
 
 void Initialize(ros::NodeHandle& n) {
 
-    /**	double step_angle = 3.14*2/m;
-        double radius = 3.0;
-        for(size_t i = 0; i <m;i++){
-            xinit.push_back(radius*cos(step_angle*i));
-            yinit.push_back(radius*sin(step_angle*i));
-            thetainit.push_back(step_angle*i - 3.14);
-            xref.push_back(radius*cos(step_angle*i + 3.14));
-            yref.push_back(radius*sin(step_angle*i + 3.14));
-            thetaref.push_back(step_angle*i + 3.14);
-
-        }**/
     xinit.push_back(0.0);yinit.push_back(1.0);thetainit.push_back(3.14 / 2.0);
     xinit.push_back(-3.0);yinit.push_back(-3.0);thetainit.push_back(3.14 / 2.0);
     xinit.push_back(3.0);yinit.push_back(-3.0);thetainit.push_back(3.14 / 4.0);
@@ -68,11 +63,22 @@ void Initialize(ros::NodeHandle& n) {
     //xinit.push_back(0.0);yinit.push_back(-3.0);thetainit.push_back(3.14/2.0);
     bs->set_initial_states(xinit, yinit, thetainit);
 
-
-
     xref.push_back(0.0);yref.push_back(8.0);thetaref.push_back(0.0);
+    xorigin = xref, yorigin = yref, thetaorigin = thetaref;
     xref.push_back(-1.0);yref.push_back(7.0);thetaref.push_back(0.0);
     xref.push_back(1.0);yref.push_back(7.0);thetaref.push_back(0.0);
+
+    std::vector<std::vector<double>> goal;
+    goal.push_back({ 0,0,0 });goal.push_back({ -1.0,-1.0,0 });goal.push_back({ 1.0,-1.0,0 });
+    goals.push_back(goal);
+    goal.clear();
+    goal.push_back({ 0,0,0 });goal.push_back({ -1.0,0.0,0 });goal.push_back({ 1.0,0.0,0 });
+    goals.push_back(goal);
+    goal.clear();
+    goal.push_back({ 2,0,0 });goal.push_back({ 1.0,1.0,0 });goal.push_back({ 3.0,0.0,0 });
+    goals.push_back(goal);
+    goal.clear();
+
     //xref.push_back(-3.0);yref.push_back(0.0);thetaref.push_back(0.0);
     //xref.push_back(0.0);yref.push_back(2.0);thetaref.push_back(0.0);
 
@@ -88,17 +94,13 @@ void Initialize(ros::NodeHandle& n) {
     obst.push_back(obst1);
     bs->set_obst_(obst);
 
-
     for (size_t i = 0; i < m; i++) {
         std::shared_ptr<Vehicle> v(new Vehicle(xinit[i], yinit[i], thetainit[i], ts, d));
         vehicles.push_back(v);
     }
 
-
     //vehicle_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
     markerArray = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 10);
-
-
 };
 
 
@@ -135,6 +137,8 @@ void RunMPC() {
 
     ShowVehicleInRviz(xinit, yinit, thetainit, safety_dist, markerArray);
     bs->set_initial_states(xinit, yinit, thetainit);
+    UpdateRef();//update goal
+    bs->set_ref_states(xref, yref, thetaref);
     solve_success = bs->Solve(pre_states, pre_inputs);
 
     for (int i = 0; i < m; i++) {
@@ -144,5 +148,28 @@ void RunMPC() {
     };
     //exit(0);
     return;
-};
-
+}
+void UpdateRef() {
+    auto checkGoal = [&]() {
+        double dismax = 0;
+        for (int i = 0;i < m;i++) {
+            dismax = std::max(dismax, dis2d(xinit[i], yinit[i], xref[i], yref[i]));
+        }
+        ROS_INFO("dismax: %lf", dismax);
+        return dismax < distanceThreshold;
+        };
+    static int status = 0;
+    if (checkGoal()) {
+        ROS_INFO("change status: %d", status);
+        if (status >= goals.size()) {
+            status = goals.size() - 1;
+        }
+        for (int i = 0;i < m;++i) {
+            xref[i] = xorigin[i] + goals[status][i][0];
+            yref[i] = yorigin[i] + goals[status][i][1];
+            thetaref[i] = thetaorigin[i] + goals[status][i][2];
+        }
+        status++;
+    }
+    return;
+}
