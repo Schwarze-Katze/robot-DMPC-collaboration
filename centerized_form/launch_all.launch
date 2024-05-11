@@ -1,5 +1,6 @@
 <launch>
 <node pkg="centerized_form" type="centerized_form" name="vehicle"/>
-<node name="rviz" pkg="rviz" type="rviz" args="-d /home/uav/catkin_ws/src/Multi_Robots_DMPC/centerized_form/myrvizdefault.rviz"/> 
+<node name="rviz" pkg="rviz" type="rviz"
+        args="-d /home/auto/dmpc_ws/src/centerized_form/myrvizdefault.rviz" /> 
 
 </launch>
