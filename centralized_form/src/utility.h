@@ -2,7 +2,8 @@
 #define _UTILITY_H
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-void VehicleRviz(const double& x, const double& y, const double& theta, const ros::Publisher& vehicle_pub) {
+#include <ros/ros.h>
+void ShowVehicleInRviz(const double& x, const double& y, const double& theta, const ros::Publisher& vehicle_pub) {
 
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
@@ -27,7 +28,7 @@ void VehicleRviz(const double& x, const double& y, const double& theta, const ro
     marker.lifetime = ros::Duration();
     vehicle_pub.publish(marker);
 };
-void ObstRviz(const std::vector<std::vector<double>>& obst, const double& safety_dist, const ros::Publisher& obst_pub) {
+void ShowObstacleInRviz(const std::vector<std::vector<double>>& obst, const double& safety_dist, const ros::Publisher& obst_pub) {
     visualization_msgs::MarkerArray ma;
     for (int i = 0; i < obst.size(); ++i) {
         visualization_msgs::Marker marker;
@@ -56,7 +57,7 @@ void ObstRviz(const std::vector<std::vector<double>>& obst, const double& safety
     obst_pub.publish(ma);
     ma.markers.clear();
 };
-void VehicleRviz(const std::vector<double> x, const std::vector<double> y, const std::vector<double> theta, const double safety_dist, const ros::Publisher& pub) {
+void ShowVehicleInRviz(const std::vector<double> x, const std::vector<double> y, const std::vector<double> theta, const double safety_dist, const ros::Publisher& pub) {
 
     visualization_msgs::MarkerArray ma;
     for (int i = 0; i < x.size(); ++i) {
@@ -64,7 +65,7 @@ void VehicleRviz(const std::vector<double> x, const std::vector<double> y, const
         marker.header.frame_id = "map";
         marker.header.stamp = ros::Time::now();
         marker.id = i + 100;
-        marker.type = visualization_msgs::Marker::ARROW;
+        marker.type = visualization_msgs::Marker::ARROW;//箭头表示
         marker.action = visualization_msgs::Marker::ADD;
         marker.pose.position.x = x[i];
         marker.pose.position.y = y[i];
@@ -91,7 +92,7 @@ void VehicleRviz(const std::vector<double> x, const std::vector<double> y, const
         marker.header.frame_id = "map";
         marker.header.stamp = ros::Time::now();
         marker.id = i + 1000;
-        marker.type = visualization_msgs::Marker::CYLINDER;
+        marker.type = visualization_msgs::Marker::CYLINDER;//圆柱状表示
         marker.action = visualization_msgs::Marker::ADD;
         marker.pose.position.x = x[i];
         marker.pose.position.y = y[i];
@@ -100,8 +101,8 @@ void VehicleRviz(const std::vector<double> x, const std::vector<double> y, const
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
-        marker.scale.x = safety_dist * 2.0;
-        marker.scale.y = safety_dist * 2.0;
+        marker.scale.x = safety_dist * 1.0;
+        marker.scale.y = safety_dist * 1.0;
         marker.scale.z = 0.1;
         marker.color.r = 0.7f * (1.0 - i / x.size());
         marker.color.g = 0.3f;

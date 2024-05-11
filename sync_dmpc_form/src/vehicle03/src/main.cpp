@@ -187,7 +187,7 @@ void UpdateVisualize() {
 		* the last iteration. Then it sends the solution immediately. Then it sleeps for a while.
 		* The states is updated in the instant i+1;
 		**/
-		ObstRviz(obst, safety_dist, markerArray);
+		ShowObstacleInRviz(obst, safety_dist, markerArray);
 
 		bs->set_initial_states(xinit, yinit, thetainit);
 		bs->set_ref_states(xr, yr, thetar);
@@ -275,7 +275,7 @@ void UpdateVisualize() {
 		xinit = vehicle->get_x();
 		yinit = vehicle->get_y();
 		thetainit = vehicle->get_theta();
-		VehicleRviz(xinit, yinit, thetainit, safety_dist, vehicle_pub);
+		ShowVehicleInRviz(xinit, yinit, thetainit, safety_dist, vehicle_pub);
 		HeadingRviz(xinit, yinit, thetainit, safety_dist, vehicle_pub);
 		TrajRviz(pre_states, safety_dist, markerArray);
 	}

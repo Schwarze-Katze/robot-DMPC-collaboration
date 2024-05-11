@@ -2,7 +2,7 @@
 #define _UTILITY_H
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-void VehicleRviz(const double& x, const double& y, const double& theta,const double& safety_dist,const ros::Publisher& vehicle_pub){
+void ShowVehicleInRviz(const double& x, const double& y, const double& theta,const double& safety_dist,const ros::Publisher& vehicle_pub){
 
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
@@ -53,7 +53,7 @@ void HeadingRviz(const double& x, const double& y, const double& theta,const dou
         marker.lifetime = ros::Duration();
   	vehicle_pub.publish(marker);
 };
-void ObstRviz(const std::vector<std::vector<double>>& obst,const double& safety_dist,const ros::Publisher& obst_pub){
+void ShowObstacleInRviz(const std::vector<std::vector<double>>& obst,const double& safety_dist,const ros::Publisher& obst_pub){
         visualization_msgs::MarkerArray ma;
         for (int i = 0; i < obst.size(); ++i) {
             visualization_msgs::Marker marker;

@@ -1,18 +1,18 @@
 
 #include "batch_solver.h"
 #include <iostream>
-#include "ros/ros.h"
+#include <ros/ros.h>
 #include "vehicle.h"
 #include "utility.h"
 #include <visualization_msgs/Marker.h>
 #include <memory>
-size_t N = 10;
+size_t N = 10;//求解输出预测长度
 size_t m = 3;
 size_t Hz = 10;
 size_t shift = 0;
-std::vector<double> xr;
-std::vector<double> yr;
-std::vector<double> thetar;
+std::vector<double> xref;
+std::vector<double> yref;
+std::vector<double> thetaref;
 double d = 1.0;
 std::vector<double> xinit;
 std::vector<double> yinit;
@@ -22,7 +22,7 @@ double safety_dist = 0.5;
 bool solve_success = false;
 std::vector<std::shared_ptr<Vehicle>> vehicles;
 std::vector<std::vector<double>> obst;
-std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xr, yr, thetar, d, xinit, yinit, thetainit, ts, safety_dist, obst));
+std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xref, yref, thetaref, d, xinit, yinit, thetainit, ts, safety_dist, obst));
 std::vector<std::vector<std::vector<double>>> pre_states(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(3, 0.0)));
 std::vector<std::vector<std::vector<double>>> pre_inputs(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(2, 0.0)));
 //ros::Publisher vehicle_pub;
@@ -56,9 +56,9 @@ void Initialize(ros::NodeHandle& n) {
             xinit.push_back(radius*cos(step_angle*i));
             yinit.push_back(radius*sin(step_angle*i));
             thetainit.push_back(step_angle*i - 3.14);
-            xr.push_back(radius*cos(step_angle*i + 3.14));
-            yr.push_back(radius*sin(step_angle*i + 3.14));
-            thetar.push_back(step_angle*i + 3.14);
+            xref.push_back(radius*cos(step_angle*i + 3.14));
+            yref.push_back(radius*sin(step_angle*i + 3.14));
+            thetaref.push_back(step_angle*i + 3.14);
 
         }**/
     xinit.push_back(0.0);yinit.push_back(1.0);thetainit.push_back(3.14 / 2.0);
@@ -70,12 +70,15 @@ void Initialize(ros::NodeHandle& n) {
 
 
 
-    xr.push_back(0.0);yr.push_back(8.0);thetar.push_back(0.0);
-    xr.push_back(-1.0);yr.push_back(7.0);thetar.push_back(0.0);
-    xr.push_back(1.0);yr.push_back(7.0);thetar.push_back(0.0);
-    //xr.push_back(-3.0);yr.push_back(0.0);thetar.push_back(0.0);
-    //xr.push_back(0.0);yr.push_back(2.0);thetar.push_back(0.0);
-    bs->set_ref_states(xr, yr, thetar);
+    xref.push_back(0.0);yref.push_back(8.0);thetaref.push_back(0.0);
+    xref.push_back(-1.0);yref.push_back(7.0);thetaref.push_back(0.0);
+    xref.push_back(1.0);yref.push_back(7.0);thetaref.push_back(0.0);
+    //xref.push_back(-3.0);yref.push_back(0.0);thetaref.push_back(0.0);
+    //xref.push_back(0.0);yref.push_back(2.0);thetaref.push_back(0.0);
+
+    assert(xinit.size() == m and yinit.size() == m and thetainit.size() == m);
+    assert(xref.size() == m and yref.size() == m and thetaref.size() == m);
+    bs->set_ref_states(xref, yref, thetaref);
 
     std::vector<double> obst1 = { 0.0,4.0 };
     //obst.push_back(obst1);
@@ -100,7 +103,7 @@ void Initialize(ros::NodeHandle& n) {
 
 
 void RunMPC() {
-    ObstRviz(obst, safety_dist, markerArray);
+    ShowObstacleInRviz(obst, safety_dist, markerArray);
 
     if (solve_success) {
         for (int i = 0; i < m; i++) {
@@ -111,15 +114,14 @@ void RunMPC() {
     }
     else {
         shift++;
-        std::cout << " ***use old input : " << shift << " ***" << std::endl;
+        std::cout << " ***Solve failed! Use former input " << shift << " ***" << std::endl;
         if (shift < N) {
-
             for (int i = 0; i < m; i++) {
-                vehicles[i]->UpdateStates(pre_inputs[i][0][0], pre_inputs[i][0][1]);
+                vehicles[i]->UpdateStates(pre_inputs[i][shift][0], pre_inputs[i][shift][1]);
             }
         }
         else {
-            std::cout << " *** !!! no more old input !!! *** " << std::endl;
+            std::cout << " *** !!! no more former input !!! *** " << std::endl;
             return;
         }
     }
@@ -130,19 +132,17 @@ void RunMPC() {
         yinit[i] = vehicles[i]->get_y();
         thetainit[i] = vehicles[i]->get_theta();
     }
+
+    ShowVehicleInRviz(xinit, yinit, thetainit, safety_dist, markerArray);
     bs->set_initial_states(xinit, yinit, thetainit);
-    VehicleRviz(xinit, yinit, thetainit, safety_dist, markerArray);
     solve_success = bs->Solve(pre_states, pre_inputs);
 
     for (int i = 0; i < m; i++) {
-        for (int j = 0; j < N + 1;j++) {
+        for (int j = 0; j <= N; j++) {
             //std::cout<<"car "<<i<<" step "<<j<<" : "<< pre_inputs[i][j][0]<<" "<< pre_inputs[i][j][1]<<std::endl;
-
         }
-
     };
     //exit(0);
     return;
-
 };
 
