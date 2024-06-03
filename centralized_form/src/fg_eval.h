@@ -15,8 +15,8 @@ namespace {
 
     class FG_eval {
     private:
-        size_t N_;
-        size_t m_;
+        size_t N_;//求解输出预测长度
+        size_t m_;//车辆数
         std::vector<double> xr_;
         std::vector<double> yr_;
         std::vector<double> thetar_;
@@ -153,7 +153,7 @@ namespace {
             *
             *	kinematics :
             *		fg[1] = x0 + ts*x9*cos(x2) - x3;
-            *		fg[2] = x1 + ts*x9*sin(x2) - x4 ;
+            *		fg[2] = x1 + ts*x9*sin(x2) - x4;
             *		fg[3] = x2 + ts*tan(x10)/d - x5;
             *
             *(1)	x1  to avoid obst 1 :
@@ -178,7 +178,9 @@ namespace {
             // reference
             for (size_t i = 0; i < m_; i++) {
                 for (size_t j = 0; j < N_ + 1;j++) {
-                    fg[0] += (v_states[i][j * 5] - xr_[i]) * (v_states[i][j * 5] - xr_[i]) + (v_states[i][j * 5 + 1] - yr_[i]) * (v_states[i][j * 5 + 1] - yr_[i]);
+                    auto& x = v_states[i][j * 5];
+                    auto& y = v_states[i][j * 5 + 1];
+                    fg[0] += (x - xr_[i]) * (x - xr_[i]) + (y - yr_[i]) * (y - yr_[i]);
                     fg[0] += v_states[i][j * 5 + 3] * 0.01 * v_states[i][j * 5 + 3] + v_states[i][j * 5 + 4] * 0.01 * v_states[i][j * 5 + 4];
                     //std::cout<<"ss3 : "<<j*5<<" "<<j*5+1<<std::endl;
                 }
@@ -208,11 +210,24 @@ namespace {
 
             // penalize formation
             for (size_t i = 0; i < N_ + 1; i++) {
-                fg[0] += 10.0 * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0);
+                for (size_t j = 0; j < m_; j++)
+                {
+                    auto& x0 = v_states[0][i * 5];
+                    auto& y0 = v_states[0][i * 5 + 1];
+                    auto& x = v_states[j][i * 5];
+                    auto& y = v_states[j][i * 5 + 1];
+                    auto diffx = x - x0;
+                    auto diffy = y - y0;
+                    auto diffxr = xr_[j] - xr_[0];
+                    auto diffyr = yr_[j] - yr_[0];
+                    fg[0] += 3.0 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
+                }
+                
+                // fg[0] += 0.0 * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0);
 
-                fg[0] += 10.0 * ((v_states[0][i * 5] - v_states[2][i * 5]) * (v_states[0][i * 5] - v_states[2][i * 5]) + (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[2][i * 5]) * (v_states[0][i * 5] - v_states[2][i * 5]) + (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) - 2.0);
+                // fg[0] += 0.0 * ((v_states[0][i * 5] - v_states[2][i * 5]) * (v_states[0][i * 5] - v_states[2][i * 5]) + (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[2][i * 5]) * (v_states[0][i * 5] - v_states[2][i * 5]) + (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[2][i * 5 + 1]) - 2.0);
 
-                fg[0] += 10.0 * ((v_states[1][i * 5] - v_states[2][i * 5]) * (v_states[1][i * 5] - v_states[2][i * 5]) + (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) - 4.0) * ((v_states[1][i * 5] - v_states[2][i * 5]) * (v_states[1][i * 5] - v_states[2][i * 5]) + (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) - 4.0);
+                // fg[0] += 0.0 * ((v_states[1][i * 5] - v_states[2][i * 5]) * (v_states[1][i * 5] - v_states[2][i * 5]) + (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) - 4.0) * ((v_states[1][i * 5] - v_states[2][i * 5]) * (v_states[1][i * 5] - v_states[2][i * 5]) + (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) * (v_states[1][i * 5 + 1] - v_states[2][i * 5 + 1]) - 4.0);
             }
 
 

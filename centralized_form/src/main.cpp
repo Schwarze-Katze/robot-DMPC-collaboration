@@ -7,12 +7,10 @@
 #include <visualization_msgs/Marker.h>
 #include <memory>
 size_t N = 10;//求解输出预测长度
-size_t m = 3;
+size_t m = 3;//车辆数
 size_t Hz = 10;
 size_t shift = 0;
-std::vector<double> xorigin;
-std::vector<double> yorigin;
-std::vector<double> thetaorigin;
+double xorigin, yorigin, thetaorigin;
 std::vector<double> xref;
 std::vector<double> yref;
 std::vector<double> thetaref;
@@ -64,18 +62,19 @@ void Initialize(ros::NodeHandle& n) {
     bs->set_initial_states(xinit, yinit, thetainit);
 
     xref.push_back(0.0);yref.push_back(8.0);thetaref.push_back(0.0);
-    xorigin = xref, yorigin = yref, thetaorigin = thetaref;
     xref.push_back(-1.0);yref.push_back(7.0);thetaref.push_back(0.0);
     xref.push_back(1.0);yref.push_back(7.0);thetaref.push_back(0.0);
+
+    xorigin = 0.0;yorigin = 8.0;thetaorigin = 0.0;
 
     std::vector<std::vector<double>> goal;
     goal.push_back({ 0,0,0 });goal.push_back({ -1.0,-1.0,0 });goal.push_back({ 1.0,-1.0,0 });
     goals.push_back(goal);
     goal.clear();
-    goal.push_back({ 0,0,0 });goal.push_back({ -1.0,0.0,0 });goal.push_back({ 1.0,0.0,0 });
+    goal.push_back({ 0,4,0 });goal.push_back({ -1.0,4.0,0 });goal.push_back({ 1.0,4.0,0 });
     goals.push_back(goal);
     goal.clear();
-    goal.push_back({ 2,0,0 });goal.push_back({ 1.0,1.0,0 });goal.push_back({ 3.0,0.0,0 });
+    goal.push_back({ 0,9,0 });goal.push_back({ 0.0,8.0,0 });goal.push_back({ 0.0,10.0,0 });
     goals.push_back(goal);
     goal.clear();
 
@@ -87,20 +86,21 @@ void Initialize(ros::NodeHandle& n) {
     bs->set_ref_states(xref, yref, thetaref);
 
     std::vector<double> obst1 = { 0.0,4.0 };
-    //obst.push_back(obst1);
-    //obst1 = {0.0,1.0};
-    //obst.push_back(obst1);
-    //obst1 = {0.0,-1.0};
     obst.push_back(obst1);
+    obst1 = {0.0,2.0};
+    obst.push_back(obst1);
+    // obst1 = {0.0,-1.0};
+    // obst.push_back(obst1);
     bs->set_obst_(obst);
 
     for (size_t i = 0; i < m; i++) {
-        std::shared_ptr<Vehicle> v(new Vehicle(xinit[i], yinit[i], thetainit[i], ts, d));
+        std::shared_ptr<Vehicle> v(new Vehicle(n, i, xinit[i], yinit[i], thetainit[i], ts, d));
         vehicles.push_back(v);
     }
 
     //vehicle_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
     markerArray = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 10);
+    sleep(10);//wait for rviz init
 };
 
 
@@ -138,6 +138,7 @@ void RunMPC() {
     ShowVehicleInRviz(xinit, yinit, thetainit, safety_dist, markerArray);
     bs->set_initial_states(xinit, yinit, thetainit);
     UpdateRef();//update goal
+    ShowRefPoint(xref, yref, thetaref, markerArray);
     bs->set_ref_states(xref, yref, thetaref);
     solve_success = bs->Solve(pre_states, pre_inputs);
 
@@ -165,9 +166,10 @@ void UpdateRef() {
             status = goals.size() - 1;
         }
         for (int i = 0;i < m;++i) {
-            xref[i] = xorigin[i] + goals[status][i][0];
-            yref[i] = yorigin[i] + goals[status][i][1];
-            thetaref[i] = thetaorigin[i] + goals[status][i][2];
+            xref[i] = xorigin + goals[status][i][0];
+            yref[i] = yorigin + goals[status][i][1];
+            thetaref[i] = thetaorigin + goals[status][i][2];
+            // ROS_INFO("car %d: %lf, %lf, %lf", i, xref[i], yref[i], thetaref[i]);
         }
         status++;
     }

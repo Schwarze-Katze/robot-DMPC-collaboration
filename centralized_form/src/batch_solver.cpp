@@ -26,7 +26,7 @@ bool BatchSolver::Solve(std::vector<std::vector<std::vector<double>>>& pre_state
             xi[i] = 0.0;
         }
     }
-else {
+    else {
         for (size_t i = 0; i < num_states; i++) {
             xi[i] = warmstart_[i];
         }
@@ -38,10 +38,12 @@ else {
     size_t step_x = 5 * (N_ - 1) + 10;
     for (size_t i = 0; i < m_; i++) {
         for (size_t j = 0; j < N_ + 1; j++) {
-            xl[i * step_x + j * 5] = -10.0;xu[i * step_x + j * 5] = 10.0;
-            xl[i * step_x + j * 5 + 1] = -10.0;xu[i * step_x + j * 5 + 1] = 10.0;
-            xl[i * step_x + j * 5 + 2] = -4.0 * 3.14;xu[i * step_x + j * 5 + 2] = 4.0 * 3.14;
-            xl[i * step_x + j * 5 + 3] = 0.0;xu[i * step_x + j * 5 + 3] = 2.0;
+            xl[i * step_x + j * 5] = -1000.0;xu[i * step_x + j * 5] = 1000.0;
+            xl[i * step_x + j * 5 + 1] = -1000.0;xu[i * step_x + j * 5 + 1] = 1000.0;//xy限制
+            // xl[i * step_x + j * 5 + 2] = -4.0 * 3.14;xu[i * step_x + j * 5 + 2] = 4.0 * 3.14;//转角限制
+            xl[i * step_x + j * 5 + 2] = -1.0e19;xu[i * step_x + j * 5 + 2] = 1.0e19;
+            xl[i * step_x + j * 5 + 3] = -2.0;xu[i * step_x + j * 5 + 3] = 2.0;//速度限制
+            // xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;//角速度限制
             xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;
         }
 
