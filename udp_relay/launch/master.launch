@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 主车udp通信节点 -->
+    <node pkg="udp_relay" type="master_relay" name="master" required="true" output="screen">
+    </node>
+</launch>

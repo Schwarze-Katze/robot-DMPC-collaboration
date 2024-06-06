@@ -32,9 +32,9 @@ public:
     void SendCommand(const double& v, const double& angle);
 };
 void Vehicle::UpdateStates(const double& v, const double& angle) {
-    x_ += Ts_ * v * std::cos(theta_);
-    y_ += Ts_ * v * std::sin(theta_);
-    theta_ += Ts_ * std::tan(angle) / d_;
+    // x_ += Ts_ * v * std::cos(theta_);
+    // y_ += Ts_ * v * std::sin(theta_);
+    // theta_ += Ts_ * std::tan(angle) / d_;
     SendCommand(v, angle);
     return;
 }

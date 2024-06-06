@@ -61,20 +61,20 @@ void Initialize(ros::NodeHandle& n) {
     //xinit.push_back(0.0);yinit.push_back(-3.0);thetainit.push_back(3.14/2.0);
     bs->set_initial_states(xinit, yinit, thetainit);
 
-    xref.push_back(0.0);yref.push_back(8.0);thetaref.push_back(0.0);
-    xref.push_back(-1.0);yref.push_back(7.0);thetaref.push_back(0.0);
-    xref.push_back(1.0);yref.push_back(7.0);thetaref.push_back(0.0);
+    xref.push_back(8.0);yref.push_back(0.0);thetaref.push_back(0.0);
+    xref.push_back(7.0);yref.push_back(-1.0);thetaref.push_back(0.0);
+    xref.push_back(7.0);yref.push_back(1.0);thetaref.push_back(0.0);
 
-    xorigin = 0.0;yorigin = 8.0;thetaorigin = 0.0;
+    xorigin = 8.0;yorigin = 0.0;thetaorigin = 0.0;
 
     std::vector<std::vector<double>> goal;
-    goal.push_back({ 0,0,0 });goal.push_back({ -1.0,-1.0,0 });goal.push_back({ 1.0,-1.0,0 });
+    goal.push_back({ 0,0,0 });goal.push_back({ -1.0,-1.0,0 });goal.push_back({ -1.0,1.0,0 });
     goals.push_back(goal);
     goal.clear();
-    goal.push_back({ 0,4,0 });goal.push_back({ -1.0,4.0,0 });goal.push_back({ 1.0,4.0,0 });
+    goal.push_back({ 4,0,0 });goal.push_back({ 4.0,-1.0,0 });goal.push_back({ 4.0,1.0,0 });
     goals.push_back(goal);
     goal.clear();
-    goal.push_back({ 0,9,0 });goal.push_back({ 0.0,8.0,0 });goal.push_back({ 0.0,10.0,0 });
+    goal.push_back({ 9,0,0 });goal.push_back({ 8.0,0.0,0 });goal.push_back({ 10.0,0.0,0 });
     goals.push_back(goal);
     goal.clear();
 
@@ -87,14 +87,14 @@ void Initialize(ros::NodeHandle& n) {
 
     std::vector<double> obst1 = { 0.0,4.0 };
     obst.push_back(obst1);
-    obst1 = {0.0,2.0};
+    obst1 = { 0.0,2.0 };
     obst.push_back(obst1);
     // obst1 = {0.0,-1.0};
     // obst.push_back(obst1);
-    bs->set_obst_(obst);
+    // bs->set_obst_(obst);
 
     for (size_t i = 0; i < m; i++) {
-        std::shared_ptr<Vehicle> v(new Vehicle(n, i, xinit[i], yinit[i], thetainit[i], ts, d));
+        std::shared_ptr<Vehicle> v(new Vehicle(n, i + 1, xinit[i], yinit[i], thetainit[i], ts, d));
         vehicles.push_back(v);
     }
 

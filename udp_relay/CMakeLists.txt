@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.10)
+project(udp_relay)
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES lib
+#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  DEPENDS system_lib
+)
+
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  nav_msgs
+  geometry_msgs
+  tf
+)
+find_package(Eigen3 REQUIRED )
+
+include_directories(
+  include/
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+)
+
+#
+ADD_EXECUTABLE(master_relay 
+  src/master.cpp
+  src/udp_master.cpp
+)
+
+ADD_EXECUTABLE(slave_relay 
+  src/slave.cpp
+  src/udp_slave.cpp
+)
+#
+# libraries to be linked into the specified target,
+# as determined by pkg-config for ipopt
+TARGET_LINK_LIBRARIES(master_relay
+    ${catkin_LIBRARIES}
+)
+TARGET_LINK_LIBRARIES(slave_relay
+    ${catkin_LIBRARIES}
+)
+
+
