@@ -1,0 +1,7 @@
+<launch>
+        <node pkg="centralized_form" type="centralized_form" name="dmpc_node" output="screen" />
+        <!-- <node name="rviz" pkg="rviz" type="rviz"
+                args="-d $(find centralized_form)/myrvizdefault.rviz" />  -->
+        <!-- 主车udp通信节点 -->
+        <!-- <node pkg="udp_relay" type="master_relay" name="master" required="true" output="screen"/> -->
+</launch>

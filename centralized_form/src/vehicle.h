@@ -20,8 +20,8 @@ public:
     // Vehicle() :x_(0.0), y_(0.0), theta_(0.0), Ts_(0.1), d_(1) { };
     Vehicle() = delete;
     Vehicle(ros::NodeHandle n, int idx, double init_x, double init_y, double init_theta, double Ts, double d) : x_(init_x), y_(init_y), theta_(init_theta), Ts_(Ts), d_(d), idx_(idx) {
-        odomSub = n.subscribe<nav_msgs::Odometry>("/vehicle" + std::to_string(idx) + "/Odometry", 10, boost::bind(&Vehicle::OdomSubCallback, this, _1));
-        commandPub = n.advertise<geometry_msgs::Twist>("/vehicle" + std::to_string(idx) + "/cmd_vel", 10);
+        odomSub = n.subscribe<nav_msgs::Odometry>("/robot" + std::to_string(idx) + "/drive_controller/odom", 10, boost::bind(&Vehicle::OdomSubCallback, this, _1));
+        commandPub = n.advertise<geometry_msgs::Twist>("/robot" + std::to_string(idx) + "/drive_controller/cmd_vel", 10);
     };
     ~Vehicle() { };
     double get_x() { return x_; }
