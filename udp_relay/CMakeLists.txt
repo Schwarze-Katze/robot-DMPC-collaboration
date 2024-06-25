@@ -34,9 +34,11 @@ ADD_EXECUTABLE(slave_relay
   src/slave.cpp
   src/udp_slave.cpp
 )
-#
-# libraries to be linked into the specified target,
-# as determined by pkg-config for ipopt
+
+catkin_install_python(PROGRAMS scripts/sim_remap.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 TARGET_LINK_LIBRARIES(master_relay
     ${catkin_LIBRARIES}
 )
