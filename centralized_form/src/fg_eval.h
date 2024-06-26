@@ -181,7 +181,8 @@ namespace {
                     auto& x = v_states[i][j * 5];
                     auto& y = v_states[i][j * 5 + 1];
                     fg[0] += (x - xr_[i]) * (x - xr_[i]) + (y - yr_[i]) * (y - yr_[i]);
-                    fg[0] += v_states[i][j * 5 + 3] * 0.01 * v_states[i][j * 5 + 3] + v_states[i][j * 5 + 4] * 0.01 * v_states[i][j * 5 + 4];
+                    // ↓make velocity and angular smooth; prevent shake
+                    fg[0] += v_states[i][j * 5 + 3] * 0.0001 * v_states[i][j * 5 + 3] + v_states[i][j * 5 + 4] * 0.0001 * v_states[i][j * 5 + 4];
                     //std::cout<<"ss3 : "<<j*5<<" "<<j*5+1<<std::endl;
                 }
             }
@@ -234,9 +235,16 @@ namespace {
             // kinematics constraints:
             for (size_t i = 0; i < m_;i++) {
                 for (size_t j = 0; j < N_;j++) {
+                    // fg[i * 3 * N_ + j * 3 + 1] = v_states[i][j * 5] + ts_ * v_states[i][j * 5 + 3] * cos(v_states[i][j * 5 + 2]) - v_states[i][j * 5 + 5];
+                    // fg[i * 3 * N_ + j * 3 + 2] = v_states[i][j * 5 + 1] + ts_ * v_states[i][j * 5 + 3] * sin(v_states[i][j * 5 + 2]) - v_states[i][j * 5 + 6];
+                    // fg[i * 3 * N_ + j * 3 + 3] = v_states[i][j * 5 + 2] + ts_ * v_states[i][j * 5 + 3] * tan(v_states[i][j * 5 + 4]) / d_ - v_states[i][j * 5 + 7];
+
+                    // change to differential drive model
                     fg[i * 3 * N_ + j * 3 + 1] = v_states[i][j * 5] + ts_ * v_states[i][j * 5 + 3] * cos(v_states[i][j * 5 + 2]) - v_states[i][j * 5 + 5];
                     fg[i * 3 * N_ + j * 3 + 2] = v_states[i][j * 5 + 1] + ts_ * v_states[i][j * 5 + 3] * sin(v_states[i][j * 5 + 2]) - v_states[i][j * 5 + 6];
-                    fg[i * 3 * N_ + j * 3 + 3] = v_states[i][j * 5 + 2] + ts_ * v_states[i][j * 5 + 3] * tan(v_states[i][j * 5 + 4]) / d_ - v_states[i][j * 5 + 7];
+                    fg[i * 3 * N_ + j * 3 + 3] = v_states[i][j * 5 + 2] + ts_ * v_states[i][j * 5 + 4] - v_states[i][j * 5 + 7];
+
+
                     //std::cout<<"ss5 : "<<i*3*N_ + j*3 + 1<<" "<<i*3*N_ + j*3 + 2<<" "<<i*3*N_ + j*3 + 3<<std::endl;
                     //std::cout<<"ss6 : "<<j*5<<" "<<j*5+1<<" "<<j*5+2<<" "<<j*5+3<<" "<<j*5+4<<" "<<j*5+5<<" "<<j*5+6<<" "<<j*5+7<<std::endl;
                 }
