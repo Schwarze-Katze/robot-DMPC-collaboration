@@ -42,9 +42,9 @@ bool BatchSolver::Solve(std::vector<std::vector<std::vector<double>>>& pre_state
             xl[i * step_x + j * 5 + 1] = -1000.0;xu[i * step_x + j * 5 + 1] = 1000.0;//xy限制
             // xl[i * step_x + j * 5 + 2] = -4.0 * 3.14;xu[i * step_x + j * 5 + 2] = 4.0 * 3.14;//转角限制
             xl[i * step_x + j * 5 + 2] = -1.0e19;xu[i * step_x + j * 5 + 2] = 1.0e19;
-            xl[i * step_x + j * 5 + 3] = -0.2;xu[i * step_x + j * 5 + 3] = 0.2;//速度限制
+            xl[i * step_x + j * 5 + 3] = -0.1;xu[i * step_x + j * 5 + 3] = 0.5;//速度限制
             // xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;//角速度限制
-            xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;
+            xl[i * step_x + j * 5 + 4] = -3.14 / 6.0;xu[i * step_x + j * 5 + 4] = 3.14 / 6.0;
         }
 
     }

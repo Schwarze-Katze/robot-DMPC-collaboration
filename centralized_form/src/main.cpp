@@ -71,7 +71,7 @@ void Initialize(ros::NodeHandle& n) {
     goal.push_back({ 0,0,0 });goal.push_back({ -1.0,-1.0,0 });goal.push_back({ -1.0,1.0,0 });
     goals.push_back(goal);
     goal.clear();
-    goal.push_back({ 4,0,0 });goal.push_back({ 4.0,-1.0,0 });goal.push_back({ 4.0,1.0,0 });
+    goal.push_back({ 4,0,0 });goal.push_back({ 4.0,-2.0,0 });goal.push_back({ 4.0,2.0,0 });
     goals.push_back(goal);
     goal.clear();
     goal.push_back({ 9,0,0 });goal.push_back({ 8.0,0.0,0 });goal.push_back({ 10.0,0.0,0 });
@@ -85,10 +85,10 @@ void Initialize(ros::NodeHandle& n) {
     assert(xref.size() == m and yref.size() == m and thetaref.size() == m);
     bs->set_ref_states(xref, yref, thetaref);
 
-    std::vector<double> obst1 = { 0.0,4.0 };
-    obst.push_back(obst1);
-    obst1 = { 0.0,2.0 };
-    obst.push_back(obst1);
+    // std::vector<double> obst1 = { 0.0,4.0 };
+    // obst.push_back(obst1);
+    // obst1 = { 0.0,2.0 };
+    // obst.push_back(obst1);
     // obst1 = {0.0,-1.0};
     // obst.push_back(obst1);
     // bs->set_obst_(obst);

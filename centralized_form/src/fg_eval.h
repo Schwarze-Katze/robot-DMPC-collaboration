@@ -180,9 +180,18 @@ namespace {
                 for (size_t j = 0; j < N_ + 1;j++) {
                     auto& x = v_states[i][j * 5];
                     auto& y = v_states[i][j * 5 + 1];
+                    auto desired_angle = atan2(yr_[i] - y, xr_[i] - x);
+                    auto theta_error = v_states[i][j * 5 + 2] - desired_angle;
+                    if (theta_error > M_PI)
+                        theta_error -= 2 * M_PI;
+                    if (theta_error < -M_PI)
+                        theta_error += 2 * M_PI;
+
                     fg[0] += (x - xr_[i]) * (x - xr_[i]) + (y - yr_[i]) * (y - yr_[i]);
                     // ↓make velocity and angular smooth; prevent shake
-                    fg[0] += v_states[i][j * 5 + 3] * 0.0001 * v_states[i][j * 5 + 3] + v_states[i][j * 5 + 4] * 0.0001 * v_states[i][j * 5 + 4];
+                    fg[0] += v_states[i][j * 5 + 3] * 0.5 * v_states[i][j * 5 + 3] + v_states[i][j * 5 + 4] * 1 * v_states[i][j * 5 + 4];
+                    fg[0] += theta_error * theta_error * 5;  // 1是航向误差的权重因子，可根据实际情况调整
+
                     //std::cout<<"ss3 : "<<j*5<<" "<<j*5+1<<std::endl;
                 }
             }
@@ -191,7 +200,7 @@ namespace {
             for (size_t i = 0; i < m_ - 1; i++) {
                 for (size_t j = 0; j < m_ - i - 1;j++) {
                     for (size_t k = 0; k < N_ + 1;k++) {
-                        fg[0] += (v_planes[i][j][k * 4 + 3]) * 100000000 * (v_planes[i][j][k * 4 + 3]);
+                        fg[0] += (v_planes[i][j][k * 4 + 3]) * 1e6 * (v_planes[i][j][k * 4 + 3]);
                         //std::cout<<"ss4 : "<<k*4+3<<std::endl;
                     }
 
@@ -202,7 +211,7 @@ namespace {
             for (size_t i = 0; i < m_; i++) {
                 for (size_t j = 0; j < obst_.size();j++) {
                     for (size_t k = 0; k < N_ + 1;k++) {
-                        fg[0] += (v_obst[i][j][k * 4 + 3]) * 100000000 * (v_obst[i][j][k * 4 + 3]);
+                        fg[0] += (v_obst[i][j][k * 4 + 3]) * 1e6 * (v_obst[i][j][k * 4 + 3]);
                         //std::cout<<"ss4 : "<<k*4+3<<std::endl;
                     }
 
@@ -221,7 +230,7 @@ namespace {
                     auto diffy = y - y0;
                     auto diffxr = xr_[j] - xr_[0];
                     auto diffyr = yr_[j] - yr_[0];
-                    fg[0] += 3.0 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
+                    fg[0] += 1 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
                 }
                 
                 // fg[0] += 0.0 * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0);
