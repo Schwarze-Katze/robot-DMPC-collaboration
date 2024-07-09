@@ -109,7 +109,7 @@ void RunMPC() {
 
     if (solve_success) {
         for (int i = 0; i < m; i++) {
-            vehicles[i]->UpdateStates(pre_inputs[i][0][0], pre_inputs[i][0][1]);
+            vehicles[i]->UpdateStates(pre_states[i][0][0], pre_states[i][0][1], pre_states[i][0][2], pre_inputs[i][0][0], pre_inputs[i][0][1]);
         }
         solve_success = false;
         shift = 0;
@@ -119,7 +119,7 @@ void RunMPC() {
         std::cout << " ***Solve failed! Use former input " << shift << " ***" << std::endl;
         if (shift < N) {
             for (int i = 0; i < m; i++) {
-                vehicles[i]->UpdateStates(pre_inputs[i][shift][0], pre_inputs[i][shift][1]);
+                vehicles[i]->UpdateStates(pre_states[i][shift][0], pre_states[i][shift][1], pre_states[i][shift][2], pre_inputs[i][shift][0], pre_inputs[i][shift][1]);
             }
         }
         else {

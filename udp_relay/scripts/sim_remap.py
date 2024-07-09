@@ -2,8 +2,37 @@ import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from gazebo_msgs.msg import ModelStates
-import tf
-import math
+import math,tf
+import tf.transformations
+
+class PIDController:
+    def __init__(self, kp, ki, kd, i_clamp, min_output, max_output):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.i_clamp = i_clamp
+        self.min_output = min_output
+        self.max_output = max_output
+        self.integral = 0.0
+        self.last_error = 0.0
+        self.last_time=rospy.Time.now()
+
+    def update(self, error):
+        current_time = rospy.Time.now()
+        dt = (current_time - self.last_time).to_sec()
+        self.integral += error * dt
+        self.integral = max(min(self.integral, self.i_clamp), -self.i_clamp)
+
+        try:
+            derivative = (error - self.last_error) / dt
+        except ZeroDivisionError:
+            derivative=0
+        self.last_error = error
+
+        output = (self.kp * error) + (self.ki * self.integral) + (self.kd * derivative)
+        output = max(min(output, self.max_output), self.min_output)
+        self.last_time = current_time
+        return output
 
 class SimRemap:
     def __init__(self):
@@ -12,7 +41,11 @@ class SimRemap:
         self.twist_pub = []
         self.odom_pub = []
         self.twist_sub = []
+        
+        self.last_yaw = {}
         # self.odom_sub = []
+        # self.pid_linear = PIDController(kp=1.0, ki=0.2, kd=0.1, i_clamp=1, min_output=-1, max_output=1)
+        self.pid_angular = PIDController(kp=2, ki=0, kd=0.1, i_clamp=1, min_output=-1, max_output=1)
         
         for i in range(self.m):
             twist_pub = rospy.Publisher(f"/robot{i+1}/drive_controller/cmd_vel", Twist, queue_size=1000)
@@ -27,11 +60,33 @@ class SimRemap:
     
     def make_twist_callback(self, i):
         def callback(msg:Twist):
+            if self.current_yaw is None or i not in self.current_yaw:
+                self.twist_pub[i].publish(msg)
+            else:
+                # linear_output = self.pid_linear.update(msg.linear.x - self.current_linear_x[i])+msg.linear.x
+                if abs(msg.angular.z)>1e-6 or (i not in self.last_yaw):
+                    self.last_yaw[i]=self.current_yaw[i]
+                # msg.linear.z=self.last_yaw[i]
+                diff=msg.linear.z - self.current_yaw[i]
+                while diff>math.pi:
+                    diff-=math.pi
+                while diff<-math.pi:
+                    diff+=math.pi
+                angular_output = self.pid_angular.update(diff)+msg.angular.z
+                print(diff,msg.angular.z,angular_output)
+                
+                new_cmd = Twist()
+                # new_cmd.linear.x = linear_output
+                new_cmd.linear.x = msg.linear.x
+                new_cmd.angular.z = angular_output
+                self.twist_pub[i].publish(new_cmd)
             rospy.logdebug(f"relay twist {i+1}")
-            self.twist_pub[i].publish(msg)
         return callback
     
     def odom_callback(self,msg:ModelStates):
+        self.current_linear_x = {}
+        self.current_angular_z = {}
+        self.current_yaw = {}
         for i in range(self.m):
             robot_name = f"robot{i + 1}"
             if robot_name in msg.name:
@@ -43,36 +98,16 @@ class SimRemap:
 
                 # Pose transformation: y direction to x direction
                 pose = msg.pose[index]
-                position = pose.position
-
-                # Rotate position
-                new_position_x = position.y
-                new_position_y = -position.x
-                new_position_z = position.z
-
-                odom_msg.pose.pose.position.x = new_position_x
-                odom_msg.pose.pose.position.y = new_position_y
-                odom_msg.pose.pose.position.z = new_position_z
-
-                odom_msg.pose.pose.orientation = pose.orientation
+                odom_msg.pose.pose = pose
 
                 # Twist transformation: y direction to x direction
                 twist = msg.twist[index]
-                new_linear_x = twist.linear.y
-                new_linear_y = -twist.linear.x
-                new_linear_z = twist.linear.z
+                odom_msg.twist.twist = twist
 
-                new_angular_x = twist.angular.y
-                new_angular_y = -twist.angular.x
-                new_angular_z = twist.angular.z
-
-                odom_msg.twist.twist.linear.x = new_linear_x
-                odom_msg.twist.twist.linear.y = new_linear_y
-                odom_msg.twist.twist.linear.z = new_linear_z
-
-                odom_msg.twist.twist.angular.x = new_angular_x
-                odom_msg.twist.twist.angular.y = new_angular_y
-                odom_msg.twist.twist.angular.z = new_angular_z
+                self.current_linear_x[i] = twist.linear.x
+                self.current_angular_z[i] = twist.angular.z
+                rpy=tf.transformations.euler_from_quaternion([pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w])
+                self.current_yaw[i] = rpy[2]
 
                 rospy.logdebug(f"relay odom {i + 1}")
                 self.odom_pub[i].publish(odom_msg)

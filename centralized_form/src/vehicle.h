@@ -28,14 +28,14 @@ public:
     double get_y() { return y_; }
     double get_theta() { return theta_; }
     void OdomSubCallback(const nav_msgs::Odometry::ConstPtr& pOdom);
-    void UpdateStates(const double& v, const double& angle);
-    void SendCommand(const double& v, const double& angle);
+    void UpdateStates(const double& xr, const double& yr, const double& thetar, const double& v, const double& angle);
+    void SendCommand(const double& xr, const double& yr, const double& thetar, const double& v, const double& angle);
 };
-void Vehicle::UpdateStates(const double& v, const double& angle) {
+void Vehicle::UpdateStates(const double& xr, const double& yr, const double& thetar, const double& v, const double& angle) {
     // x_ += Ts_ * v * std::cos(theta_);
     // y_ += Ts_ * v * std::sin(theta_);
     // theta_ += Ts_ * std::tan(angle) / d_;
-    SendCommand(v, angle);
+    SendCommand(xr, yr, thetar, v, angle);
     return;
 }
 void Vehicle::OdomSubCallback(const nav_msgs::Odometry::ConstPtr& pOdom) {
@@ -46,10 +46,11 @@ void Vehicle::OdomSubCallback(const nav_msgs::Odometry::ConstPtr& pOdom) {
     double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
     theta_ = std::atan2(siny_cosp, cosy_cosp);
 }
-void Vehicle::SendCommand(const double& v, const double& angle) {
+void Vehicle::SendCommand(const double& xr, const double& yr, const double& thetar, const double& v, const double& angle) {
     geometry_msgs::Twist twist;
     twist.angular.z = angle;
     twist.linear.x = v;
+    twist.linear.z = thetar;
     commandPub.publish(twist);
 }
 #endif

@@ -1,6 +1,6 @@
 <launch>
-        <node pkg="centralized_form" type="centralized_form" name="dmpc_node" output="screen" />
+        <!-- <node pkg="centralized_form" type="centralized_form" name="dmpc_node" output="screen" /> -->
         <!-- <node name="rviz" pkg="rviz" type="rviz"
                 args="-d $(find centralized_form)/myrvizdefault.rviz" />  -->
-        <node pkg="udp_relay" type="sim_remap.py" name="sim_remap" required="true" output="screen"/>
+        <node pkg="udp_relay" type="sim_remap.py" name="sim_remap1" required="true" output="screen"/>
 </launch>
