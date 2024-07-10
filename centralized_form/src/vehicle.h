@@ -34,11 +34,12 @@ public:
 void Vehicle::UpdateStates(const double& xr, const double& yr, const double& thetar, const double& v, const double& angle) {
     // x_ += Ts_ * v * std::cos(theta_);
     // y_ += Ts_ * v * std::sin(theta_);
-    // theta_ += Ts_ * std::tan(angle) / d_;
+    // theta_ += Ts_ * angle;
     SendCommand(xr, yr, thetar, v, angle);
     return;
 }
 void Vehicle::OdomSubCallback(const nav_msgs::Odometry::ConstPtr& pOdom) {
+    // return;
     x_ = pOdom->pose.pose.position.x;
     y_ = pOdom->pose.pose.position.y;
     auto &q = pOdom->pose.pose.orientation;

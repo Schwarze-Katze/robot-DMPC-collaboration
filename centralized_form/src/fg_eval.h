@@ -180,17 +180,33 @@ namespace {
                 for (size_t j = 0; j < N_ + 1;j++) {
                     auto& x = v_states[i][j * 5];
                     auto& y = v_states[i][j * 5 + 1];
-                    auto desired_angle = atan2(yr_[i] - y, xr_[i] - x);
+                    auto dist_sqr = (x - xr_[i]) * (x - xr_[i]) + (y - yr_[i]) * (y - yr_[i]);
+                    auto desired_angle = atan2(yr_[i] - y, xr_[i] - x);//到ref点的直线航向
+                    if (dist_sqr < safety_dist_) {
+                        desired_angle = thetar_[i];
+                    }
                     auto theta_error = v_states[i][j * 5 + 2] - desired_angle;
-                    if (theta_error > M_PI)
+                    while (theta_error > M_PI)
                         theta_error -= 2 * M_PI;
-                    if (theta_error < -M_PI)
+                    while (theta_error < -M_PI)
                         theta_error += 2 * M_PI;
 
-                    fg[0] += (x - xr_[i]) * (x - xr_[i]) + (y - yr_[i]) * (y - yr_[i]);
+                    fg[0] += dist_sqr;
                     // ↓make velocity and angular smooth; prevent shake
-                    fg[0] += v_states[i][j * 5 + 3] * 0.5 * v_states[i][j * 5 + 3] + v_states[i][j * 5 + 4] * 1 * v_states[i][j * 5 + 4];
-                    fg[0] += theta_error * theta_error * 5;  // 1是航向误差的权重因子，可根据实际情况调整
+                    auto v_sqr = v_states[i][j * 5 + 3] * v_states[i][j * 5 + 3];
+                    if (v_sqr > 0.3 * 0.3) {
+                        fg[0] += v_states[i][j * 5 + 3] * 2 * v_states[i][j * 5 + 3];
+                    }
+                    else {
+                        fg[0] += v_states[i][j * 5 + 3] * 0.1 * v_states[i][j * 5 + 3];
+                    }
+                    fg[0] += v_states[i][j * 5 + 4] * 0.5 * v_states[i][j * 5 + 4];
+                    if (dist_sqr > safety_dist_) {
+                        fg[0] += theta_error * theta_error * 1;  // 1是航向误差的权重因子，可根据实际情况调整
+                    }
+                    else {
+                        fg[0] += theta_error * theta_error * 2;
+                    }
 
                     //std::cout<<"ss3 : "<<j*5<<" "<<j*5+1<<std::endl;
                 }
@@ -230,7 +246,7 @@ namespace {
                     auto diffy = y - y0;
                     auto diffxr = xr_[j] - xr_[0];
                     auto diffyr = yr_[j] - yr_[0];
-                    fg[0] += 1 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
+                    fg[0] += 3 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
                 }
                 
                 // fg[0] += 0.0 * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0);

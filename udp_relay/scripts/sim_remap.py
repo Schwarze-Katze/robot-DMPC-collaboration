@@ -73,7 +73,8 @@ class SimRemap:
                 while diff<-math.pi:
                     diff+=math.pi
                 angular_output = self.pid_angular.update(diff)+msg.angular.z
-                print(diff,msg.angular.z,angular_output)
+                # angular_output = msg.angular.z
+                print(f"diff = {diff:.3f}, ang v = {msg.angular.z:.3f}, ang ctrl = {angular_output:.3f}")
                 
                 new_cmd = Twist()
                 # new_cmd.linear.x = linear_output
