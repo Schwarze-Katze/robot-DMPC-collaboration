@@ -144,6 +144,38 @@ void ShowRefPoint(const std::vector<double> x, const std::vector<double> y, cons
     pub.publish(ma);
 }
 
+void TrajRviz(const std::vector<std::vector<std::vector<double>>> states, const double safety_dist, const ros::Publisher& pub) {
+    visualization_msgs::MarkerArray ma;
+    for (int i = 0;i < states.size();++i) {
+        auto& state = states[i];
+        for (int j = 1; j < state.size();j++) {
+            visualization_msgs::Marker marker;
+            marker.header.frame_id = "map";
+            marker.header.stamp = ros::Time::now();
+            marker.id = j + i * 1000 + 3000;// num of cars * N
+            marker.type = visualization_msgs::Marker::CYLINDER;
+            marker.action = visualization_msgs::Marker::ADD;
+            marker.pose.position.x = state[j][0];
+            marker.pose.position.y = state[j][1];
+            marker.pose.position.z = 0;
+            marker.pose.orientation.x = 0.0;
+            marker.pose.orientation.y = 0.0;
+            marker.pose.orientation.z = 0.0;
+            marker.pose.orientation.w = 1.0;
+            marker.scale.x = safety_dist * 0.5;
+            marker.scale.y = safety_dist * 0.5;
+            marker.scale.z = 0.1;
+            marker.color.r = 0.7f;
+            marker.color.g = 0.3f;
+            marker.color.b = 0.3f;
+            marker.color.a = 0.1;
+            marker.lifetime = ros::Duration();
+            ma.markers.push_back(marker);
+        }
+    }
+    pub.publish(ma);
+}
+
 double dis2d(double x1, double y1, double x2, double y2) {
     auto dx = x1 - x2;
     auto dy = y1 - y2;

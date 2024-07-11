@@ -1,0 +1,14 @@
+self:
+  id: 2
+  ip: 127.0.0.1
+  port: 30001
+remote: # 目前只会读第一组
+  - id: 1
+    ip: 192.168.31.101
+    port: 40001
+    send_topics:
+      - /Odometry #nav_msgs::Odometry
+      - /cat_state #std_msgs::Bool
+    recv_topics:
+      - /cmd_vel #geometry_msgs::Twist
+      - /cat_cmd #std_msgs::Bool

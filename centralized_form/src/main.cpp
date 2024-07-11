@@ -18,7 +18,7 @@ double d = 0.4;
 std::vector<double> xinit;
 std::vector<double> yinit;
 std::vector<double> thetainit;
-double ts = 0.1;
+double ts = 0.2;
 double safety_dist = 0.5;
 double distanceThreshold = safety_dist * 0.5;
 bool solve_success = false;
@@ -142,12 +142,13 @@ void RunMPC() {
     bs->set_ref_states(xref, yref, thetaref);
     solve_success = bs->Solve(pre_states, pre_inputs);
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j <= N; j++) {
-            //std::cout<<"car "<<i<<" step "<<j<<" : "<< pre_inputs[i][j][0]<<" "<< pre_inputs[i][j][1]<<std::endl;
-        }
-    };
-    //exit(0);
+    // for (int i = 0; i < m; i++) {
+    //     for (int j = 0; j <= N; j++) {
+    //         std::cout<<"car "<<i<<" step "<<j<<" : "<< pre_inputs[i][j][0]<<" "<< pre_inputs[i][j][1]<<std::endl;
+    //     }
+    // };
+
+    TrajRviz(pre_states, safety_dist, markerArray);
     return;
 }
 void UpdateRef() {

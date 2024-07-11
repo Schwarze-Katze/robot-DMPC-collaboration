@@ -44,7 +44,7 @@ bool BatchSolver::Solve(std::vector<std::vector<std::vector<double>>>& pre_state
             xl[i * step_x + j * 5 + 2] = -1.0e19;xu[i * step_x + j * 5 + 2] = 1.0e19;
             xl[i * step_x + j * 5 + 3] = -0.5;xu[i * step_x + j * 5 + 3] = 0.5;//速度限制
             // xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;//角速度限制
-            xl[i * step_x + j * 5 + 4] = -3.14 / 4.0;xu[i * step_x + j * 5 + 4] = 3.14 / 4.0;
+            xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;
         }
 
     }

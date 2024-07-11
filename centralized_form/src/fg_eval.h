@@ -202,7 +202,7 @@ namespace {
                     }
                     fg[0] += v_states[i][j * 5 + 4] * 0.5 * v_states[i][j * 5 + 4];
                     if (dist_sqr > safety_dist_) {
-                        fg[0] += theta_error * theta_error * 1;  // 1是航向误差的权重因子，可根据实际情况调整
+                        fg[0] += theta_error * theta_error * 2;  // 1是航向误差的权重因子，可根据实际情况调整
                     }
                     else {
                         fg[0] += theta_error * theta_error * 2;

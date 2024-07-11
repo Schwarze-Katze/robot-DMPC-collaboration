@@ -16,12 +16,12 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   tf
 )
-find_package(Eigen3 REQUIRED )
+find_package(yaml-cpp REQUIRED)
 
 include_directories(
   include/
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIRS}
 )
 
 #
@@ -41,9 +41,11 @@ catkin_install_python(PROGRAMS scripts/sim_remap.py
 
 TARGET_LINK_LIBRARIES(master_relay
     ${catkin_LIBRARIES}
+    ${YAML_CPP_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(slave_relay
     ${catkin_LIBRARIES}
+    ${YAML_CPP_LIBRARIES}
 )
 
 

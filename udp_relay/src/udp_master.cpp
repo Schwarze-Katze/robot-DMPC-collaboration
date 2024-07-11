@@ -1,14 +1,29 @@
 #include "udp_master.h"
 
-const int LOCAL_PORT = 40001;
-const int REMOTE_PORT = 30001;
-const char* REMOTE_IP = "192.168.31.103";
 
 const std::vector<double> x_diff={0.0,0.0,0.0};
 const std::vector<double> y_diff={0.0,-1.0,1.0};
 
+UDPMaster::UDPMaster(int _i){
+    std::string cfg_path;
+    ros::param::get("cfg_path", cfg_path);
+    YAML::Node cfg = YAML::LoadFile(cfg_path);
+    auto self_cfg = cfg["self"];
+    auto remote_cfg = cfg["remote"][_i];
 
-UDPMaster::UDPMaster(int _idx) :idx(_idx) {
+    int self_id = 0;
+    if (self_cfg["id"]) {
+        self_id = self_cfg["id"].as<int>();
+    }
+    else {
+        ROS_ERROR("id undefined");
+    }
+    remote_id = remote_cfg["id"].as<int>();
+    int LOCAL_PORT = self_cfg["port"].as<int>();
+    std::string REMOTE_IP = remote_cfg["ip"].as<std::string>();
+    int REMOTE_PORT = remote_cfg["port"].as<int>();
+
+
     recv_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (recv_sock < 0) {
         ROS_ERROR("Socket creation failed");
@@ -34,7 +49,7 @@ UDPMaster::UDPMaster(int _idx) :idx(_idx) {
     // Remote address setup
     memset(&remote_addr, 0, sizeof(remote_addr));
     remote_addr.sin_family = AF_INET;
-    remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);//向主机发送
+    remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP.c_str());//向主机发送
     remote_addr.sin_port = htons(REMOTE_PORT);
 
     // if (bind(send_sock, (struct sockaddr*) &remote_addr, sizeof(remote_addr)) < 0) {
@@ -43,9 +58,15 @@ UDPMaster::UDPMaster(int _idx) :idx(_idx) {
     // }
 
     // ROS subscribers and publishers
-    nh = ros::NodeHandle("vehicle" + std::to_string(idx));
-    twist_sub = nh.subscribe("cmd_vel", 1000, &UDPMaster::twistCallback, this);
-    odom_pub = nh.advertise<nav_msgs::Odometry>("Odometry", 1000);
+    nh = ros::NodeHandle();
+    auto send_topics = remote_cfg["send_topics"];
+    auto recv_topics = remote_cfg["recv_topics"];
+
+    subs.push_back(nh.subscribe(send_topics[0].as<std::string>(), 1000, &UDPMaster::twistCallback, this));
+    subs.push_back(nh.subscribe(send_topics[1].as<std::string>(), 1000, &UDPMaster::catCmdCallback, this));
+
+    pubs.push_back(nh.advertise<nav_msgs::Odometry>(recv_topics[0].as<std::string>(), 1000));
+    pubs.push_back(nh.advertise<std_msgs::Bool>(recv_topics[1].as<std::string>(), 1000));
 
     ROS_INFO("UDP Communication Initialized.");
 }
@@ -56,30 +77,52 @@ UDPMaster::~UDPMaster() {
 }
 
 void UDPMaster::twistCallback(const geometry_msgs::Twist::ConstPtr& msg) {
-    ROS_INFO("relay slave %d twist",idx);
-    uint32_t serial_size = ros::serialization::serializationLength(*msg);
-    boost::shared_array<uint8_t> buffer(new uint8_t[serial_size]);
-    ros::serialization::OStream stream(buffer.get(), serial_size);
-    ros::serialization::serialize(stream, *msg);
-    sendto(send_sock, buffer.get(), serial_size, 0, (struct sockaddr*) &remote_addr, sizeof(remote_addr));
+    std::unique_lock<std::mutex> ulck(_mtx);
+    twist_buf = *msg;
+    return;
+    ROS_INFO("relay slave %d twist", remote_id);
+    
 }
 
-void UDPMaster::receiveData() {
+void UDPMaster::catCmdCallback(const std_msgs::Bool::ConstPtr& msg) {
+    std::unique_lock<std::mutex> ulck(_mtx);
+    bool_buf = *msg;
+    return;
+    ROS_INFO("relay slave %d command", remote_id);
+}
+
+void UDPMaster::transferData() {
+    // Send
+    std::unique_lock<std::mutex> ulck(_mtx);
+    uint32_t serial_size = 16;
+    serial_size += ros::serialization::serializationLength(twist_buf);
+    serial_size += ros::serialization::serializationLength(bool_buf);
+    boost::shared_array<uint8_t> send_buffer(new uint8_t[serial_size]);
+    ros::serialization::OStream stream(send_buffer.get(), serial_size);
+    ros::serialization::serialize(stream, twist_buf);
+    ros::serialization::serialize(stream, bool_buf);
+    ulck.unlock();
+    sendto(send_sock, send_buffer.get(), serial_size, 0, (struct sockaddr*) &remote_addr, sizeof(remote_addr));
+
+    // Recv
     nav_msgs::Odometry odom_msg;
-    const uint32_t msg_len = ros::serialization::serializationLength(odom_msg)+16;
-    // const uint32_t msg_len =1024;
-    boost::shared_array<uint8_t> buffer(new uint8_t[msg_len]);
+    std_msgs::Bool bool_msg;
+    uint32_t msg_len = 16;
+    msg_len += ros::serialization::serializationLength(odom_msg);
+    msg_len += ros::serialization::serializationLength(bool_msg);
+    boost::shared_array<uint8_t> recv_buffer(new uint8_t[msg_len]);
     struct sockaddr_in sender_addr;
     socklen_t sender_len = sizeof(sender_addr);
-    int len = recvfrom(recv_sock, buffer.get(), msg_len, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &sender_len);
+    int len = recvfrom(recv_sock, recv_buffer.get(), msg_len, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &sender_len);
     // ROS_INFO("len = %d : %d, sender = %d:%d",len,msg_len,sender_addr.sin_addr.s_addr,sender_addr.sin_port);
     if (len > 0) {
-        ros::serialization::IStream stream((uint8_t*) buffer.get(), msg_len);
+        ros::serialization::IStream stream((uint8_t*) recv_buffer.get(), msg_len);
         ros::serialization::deserialize(stream, odom_msg);
-        odom_msg.pose.pose.position.x+=x_diff[idx-1];
-        odom_msg.pose.pose.position.y+=y_diff[idx-1];
-        // ROS_INFO("odom_msg.pose.pose.position = %.2lf,%.2lf",odom_msg.pose.pose.position.x,odom_msg.pose.pose.position.y);
-        ROS_INFO("relay slave %d odom",idx);
-        odom_pub.publish(odom_msg);
+        odom_msg.pose.pose.position.x+=x_diff[remote_id-1];
+        odom_msg.pose.pose.position.y+=y_diff[remote_id-1];
+        ROS_INFO("relay slave %d odom",remote_id);
+        pubs[0].publish(odom_msg);
+        ros::serialization::deserialize(stream, bool_msg);
+        pubs[1].publish(bool_msg);
     }
 }

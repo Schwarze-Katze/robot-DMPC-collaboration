@@ -2,11 +2,11 @@
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "udp_relay");
-    UDPSlave udpComm;
+    std::shared_ptr<UDPSlave> udpComm = std::make_shared<UDPSlave>();
     ros::Rate loop_rate(50);
 
     while (ros::ok()) {
-        udpComm.receiveData();
+        udpComm->transferData();
         ros::spinOnce();
         loop_rate.sleep();
     }

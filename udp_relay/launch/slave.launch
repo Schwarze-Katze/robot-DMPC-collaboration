@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+    <rosparam param="cfg_path" subst_value="True">"$(find udp_relay)/config/slave.yaml"</rosparam>
     <!-- 主车udp通信节点 -->
     <node pkg="udp_relay" type="slave_relay" name="slave" required="true" output="screen">
     </node>
