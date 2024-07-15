@@ -100,7 +100,7 @@ void Initialize(ros::NodeHandle& n) {
 
     //vehicle_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
     markerArray = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 10);
-    sleep(10);//wait for rviz init
+    sleep(3);//wait for rviz init
 };
 
 
