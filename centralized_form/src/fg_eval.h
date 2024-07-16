@@ -246,7 +246,7 @@ namespace {
                     auto diffy = y - y0;
                     auto diffxr = xr_[j] - xr_[0];
                     auto diffyr = yr_[j] - yr_[0];
-                    fg[0] += 3 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
+                    fg[0] += 5 * ((diffx - diffxr) * (diffx - diffxr) + (diffy - diffyr) * (diffy - diffyr));//只做了绝对坐标跟踪，没有做航向跟踪
                 }
                 
                 // fg[0] += 0.0 * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0) * ((v_states[0][i * 5] - v_states[1][i * 5]) * (v_states[0][i * 5] - v_states[1][i * 5]) + (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) * (v_states[0][i * 5 + 1] - v_states[1][i * 5 + 1]) - 2.0);

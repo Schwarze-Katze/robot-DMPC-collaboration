@@ -19,7 +19,7 @@ std::vector<double> xinit;
 std::vector<double> yinit;
 std::vector<double> thetainit;
 double ts = 0.2;
-double safety_dist = 0.5;
+double safety_dist = 0.7;
 double distanceThreshold = safety_dist * 0.5;
 bool solve_success = false;
 std::vector<std::shared_ptr<Vehicle>> vehicles;
@@ -74,7 +74,10 @@ void Initialize(ros::NodeHandle& n) {
     goal.push_back({ 4,0,0 });goal.push_back({ 4.0,-2.0,0 });goal.push_back({ 4.0,2.0,0 });
     goals.push_back(goal);
     goal.clear();
-    goal.push_back({ 9,0,0 });goal.push_back({ 8.0,0.0,0 });goal.push_back({ 10.0,0.0,0 });
+    goal.push_back({ 9,0,0 });goal.push_back({ 8,0.0,0 });goal.push_back({ 10,0.0,0 });
+    goals.push_back(goal);
+    goal.clear();
+    goal.push_back({ 9,0,0 });goal.push_back({ 8.3,0.0,0 });goal.push_back({ 9.7,0.0,0 });
     goals.push_back(goal);
     goal.clear();
 

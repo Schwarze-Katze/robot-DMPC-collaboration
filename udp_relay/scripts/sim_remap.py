@@ -5,6 +5,9 @@ from gazebo_msgs.msg import ModelStates
 import math,tf
 import tf.transformations
 
+use_angular_PID = False
+use_self_angle_ref = False
+
 class PIDController:
     def __init__(self, kp, ki, kd, i_clamp, min_output, max_output):
         self.kp = kp
@@ -66,7 +69,8 @@ class SimRemap:
                 # linear_output = self.pid_linear.update(msg.linear.x - self.current_linear_x[i])+msg.linear.x
                 if abs(msg.angular.z)>1e-6 or (i not in self.last_yaw):
                     self.last_yaw[i]=self.current_yaw[i]
-                # msg.linear.z=self.last_yaw[i]
+                if use_self_angle_ref:
+                    msg.linear.z=self.last_yaw[i]
                 diff=msg.linear.z - self.current_yaw[i]
                 while diff>math.pi:
                     diff-=math.pi
@@ -77,9 +81,13 @@ class SimRemap:
                 print(f"diff = {diff:.3f}, ang v = {msg.angular.z:.3f}, ang ctrl = {angular_output:.3f}")
                 
                 new_cmd = Twist()
+                # 不使用速度PID控制
                 # new_cmd.linear.x = linear_output
                 new_cmd.linear.x = msg.linear.x
-                new_cmd.angular.z = angular_output
+                if use_angular_PID:
+                    new_cmd.angular.z = angular_output
+                else:
+                    new_cmd.angular.z = msg.angular.z
                 self.twist_pub[i].publish(new_cmd)
             rospy.logdebug(f"relay twist {i+1}")
         return callback

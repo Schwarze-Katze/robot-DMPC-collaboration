@@ -51,6 +51,11 @@ void Vehicle::SendCommand(const double& xr, const double& yr, const double& thet
     geometry_msgs::Twist twist;
     twist.angular.z = angle;
     twist.linear.x = v;
+    if (idx_ == 1)
+    {
+        twist.linear.x = std::min(twist.linear.x, 0.4);
+    }
+    
     twist.linear.z = thetar;
     commandPub.publish(twist);
 }
