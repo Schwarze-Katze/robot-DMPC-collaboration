@@ -15,9 +15,9 @@ UDPSlave::UDPSlave() {
     else {
         ROS_ERROR("id undefined");
     }
-    int LOCAL_PORT = self_cfg["port"].as<int>();
+    int LOCAL_PORT = remote_cfg["recv_port"].as<int>();
     std::string REMOTE_IP = remote_cfg["ip"].as<std::string>();
-    int REMOTE_PORT = remote_cfg["port"].as<int>();
+    int REMOTE_PORT = remote_cfg["send_port"].as<int>();
 
     recv_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (recv_sock < 0) {

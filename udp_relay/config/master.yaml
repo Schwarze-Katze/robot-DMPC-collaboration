@@ -1,11 +1,11 @@
 self:
   id: 1
   ip: 127.0.0.1
-  port: 40001
 remote:
   - id: 2
     ip: 192.168.31.102
-    port: 30001
+    send_port: 30001 # 可以相同
+    recv_port: 40001 # 不能相同
     send_topics:
       - /robot2/cmd_vel #geometry_msgs::Twist
       - /robot2/cat_cmd #std_msgs::Bool
@@ -14,7 +14,8 @@ remote:
       - /robot2/cat_state #std_msgs::Bool
   - id: 3
     ip: 192.168.31.103
-    port: 30001
+    send_port: 30001
+    recv_port: 40002
     send_topics:
       - /robot3/cmd_vel #geometry_msgs::Twist
       - /robot3/cat_cmd #std_msgs::Bool

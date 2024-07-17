@@ -1,11 +1,11 @@
 self:
   id: 2
   ip: 127.0.0.1
-  port: 30001
 remote: # 目前只会读第一组
   - id: 1
     ip: 192.168.31.101
-    port: 40001
+    send_port: 40001 # 要根据车号改正
+    recv_port: 30001
     send_topics:
       - /Odometry #nav_msgs::Odometry
       - /cat_state #std_msgs::Bool

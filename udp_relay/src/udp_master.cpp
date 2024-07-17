@@ -19,9 +19,9 @@ UDPMaster::UDPMaster(int _i){
         ROS_ERROR("id undefined");
     }
     remote_id = remote_cfg["id"].as<int>();
-    int LOCAL_PORT = self_cfg["port"].as<int>();
+    int LOCAL_PORT = remote_cfg["recv_port"].as<int>();
     std::string REMOTE_IP = remote_cfg["ip"].as<std::string>();
-    int REMOTE_PORT = remote_cfg["port"].as<int>();
+    int REMOTE_PORT = remote_cfg["send_port"].as<int>();
 
 
     recv_sock = socket(AF_INET, SOCK_DGRAM, 0);
