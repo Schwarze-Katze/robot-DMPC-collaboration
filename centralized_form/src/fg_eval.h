@@ -20,6 +20,7 @@ namespace {
         std::vector<double> xr_;
         std::vector<double> yr_;
         std::vector<double> thetar_;
+        std::vector<double> vr_;
         std::vector<double> xinit_;
         std::vector<double> yinit_;
         std::vector<double> thetainit_;
@@ -28,8 +29,8 @@ namespace {
         double d_;
         double safety_dist_;
     public:
-        FG_eval(size_t N_, size_t m_, std::vector<double> xr_, std::vector<double> yr_, std::vector<double> thetar_, double d_, std::vector<double> xinit_, std::vector<double> yinit_, std::vector<double> thetainit_, double ts_, double safety_dist_, std::vector<std::vector<double>> obst_)
-            :N_(N_), m_(m_), xr_(xr_), yr_(yr_), thetar_(thetar_), d_(d_), xinit_(xinit_), yinit_(yinit_), thetainit_(thetainit_), ts_(ts_), safety_dist_(safety_dist_), obst_(obst_) {
+        FG_eval(size_t N_, size_t m_, std::vector<double> xr_, std::vector<double> yr_, std::vector<double> thetar_, std::vector<double> vr_, double d_, std::vector<double> xinit_, std::vector<double> yinit_, std::vector<double> thetainit_, double ts_, double safety_dist_, std::vector<std::vector<double>> obst_)
+            :N_(N_), m_(m_), xr_(xr_), yr_(yr_), thetar_(thetar_), vr_(vr_), d_(d_), xinit_(xinit_), yinit_(yinit_), thetainit_(thetainit_), ts_(ts_), safety_dist_(safety_dist_), obst_(obst_) {
 
         };
         typedef CPPAD_TESTVECTOR(AD<double>) ADvector;

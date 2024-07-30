@@ -1,10 +1,10 @@
-
-#include "batch_solver.h"
 #include <iostream>
 #include <ros/ros.h>
 #include "vehicle.h"
 #include "utility.h"
+#include "batch_solver.h"
 #include <visualization_msgs/Marker.h>
+#include <std_msgs/Bool.h>
 #include <memory>
 size_t N = 10;//求解输出预测长度
 size_t m = 3;//车辆数
@@ -14,6 +14,7 @@ double xorigin, yorigin, thetaorigin;
 std::vector<double> xref;
 std::vector<double> yref;
 std::vector<double> thetaref;
+std::vector<double> vref;
 double d = 0.4;
 std::vector<double> xinit;
 std::vector<double> yinit;
@@ -25,7 +26,7 @@ bool solve_success = false;
 std::vector<std::shared_ptr<Vehicle>> vehicles;
 std::vector<std::vector<double>> obst;
 std::vector<std::vector<std::vector<double>>> goals;
-std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xref, yref, thetaref, d, xinit, yinit, thetainit, ts, safety_dist * safety_dist, obst));
+std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xref, yref, thetaref, vref, d, xinit, yinit, thetainit, ts, safety_dist * safety_dist, obst));
 std::vector<std::vector<std::vector<double>>> pre_states(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(3, 0.0)));
 std::vector<std::vector<std::vector<double>>> pre_inputs(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(2, 0.0)));
 //ros::Publisher vehicle_pub;
@@ -34,6 +35,7 @@ ros::Publisher markerArray;
 void RunMPC();
 void UpdateNeighborsPos();
 void UpdateRef();
+void EnableDockingMode();
 void Initialize(ros::NodeHandle& n);
 
 
@@ -61,9 +63,9 @@ void Initialize(ros::NodeHandle& n) {
     //xinit.push_back(0.0);yinit.push_back(-3.0);thetainit.push_back(3.14/2.0);
     bs->set_initial_states(xinit, yinit, thetainit);
 
-    xref.push_back(8.0);yref.push_back(0.0);thetaref.push_back(0.0);
-    xref.push_back(7.0);yref.push_back(-1.0);thetaref.push_back(0.0);
-    xref.push_back(7.0);yref.push_back(1.0);thetaref.push_back(0.0);
+    xref.push_back(8.0);yref.push_back(0.0);thetaref.push_back(0.0);vref.push_back(0.4);
+    xref.push_back(7.0);yref.push_back(-1.0);thetaref.push_back(0.0);vref.push_back(0.4);
+    xref.push_back(7.0);yref.push_back(1.0);thetaref.push_back(0.0);vref.push_back(0.4);
 
     xorigin = 8.0;yorigin = 0.0;thetaorigin = 0.0;
 
@@ -87,6 +89,7 @@ void Initialize(ros::NodeHandle& n) {
     assert(xinit.size() == m and yinit.size() == m and thetainit.size() == m);
     assert(xref.size() == m and yref.size() == m and thetaref.size() == m);
     bs->set_ref_states(xref, yref, thetaref);
+    bs->set_ref_states(vref);
 
     // std::vector<double> obst1 = { 0.0,4.0 };
     // obst.push_back(obst1);
@@ -168,6 +171,11 @@ void UpdateRef() {
         ROS_INFO("change status: %d", status);
         if (status >= goals.size()) {
             status = goals.size() - 1;
+            EnableDockingMode();
+            auto spdlim = 0.2;
+            vref.clear();
+            vref.push_back(spdlim);vref.push_back(spdlim);vref.push_back(spdlim);
+            bs->set_ref_states(vref);
         }
         for (int i = 0;i < m;++i) {
             xref[i] = xorigin + goals[status][i][0];
@@ -178,4 +186,8 @@ void UpdateRef() {
         status++;
     }
     return;
+}
+
+void EnableDockingMode() {
+    std_msgs::Bool msg;
 }

@@ -10,6 +10,9 @@ void BatchSolver::set_ref_states(const std::vector<double>& x, const std::vector
     yr_ = y;
     thetar_ = theta;
 };
+void BatchSolver::set_ref_states(const std::vector<double>& v) {
+    vr_ = v;
+};
 void BatchSolver::set_obst_(const std::vector<std::vector<double>>& obst) {
     obst_ = obst;
 };
@@ -42,7 +45,8 @@ bool BatchSolver::Solve(std::vector<std::vector<std::vector<double>>>& pre_state
             xl[i * step_x + j * 5 + 1] = -1000.0;xu[i * step_x + j * 5 + 1] = 1000.0;//xy限制
             // xl[i * step_x + j * 5 + 2] = -4.0 * 3.14;xu[i * step_x + j * 5 + 2] = 4.0 * 3.14;//转角限制
             xl[i * step_x + j * 5 + 2] = -1.0e19;xu[i * step_x + j * 5 + 2] = 1.0e19;
-            xl[i * step_x + j * 5 + 3] = -0.5;xu[i * step_x + j * 5 + 3] = 0.5;//速度限制
+            // xl[i * step_x + j * 5 + 3] = -0.5;xu[i * step_x + j * 5 + 3] = 0.5;//速度限制
+            xl[i * step_x + j * 5 + 3] = -vr_[i];xu[i * step_x + j * 5 + 3] = vr_[i];//速度限制
             // xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;//角速度限制
             xl[i * step_x + j * 5 + 4] = -3.14 / 3.0;xu[i * step_x + j * 5 + 4] = 3.14 / 3.0;
         }
@@ -115,7 +119,7 @@ bool BatchSolver::Solve(std::vector<std::vector<std::vector<double>>>& pre_state
 
 
         // N_, m_, xr_, yr_, thetar_, d_, xinit_,yinit_, thetainit_, ts_, safety_dist_
-    FG_eval fg_eval(N_, m_, xr_, yr_, thetar_, d_, xinit_, yinit_, thetainit_, ts_, safety_dist_, obst_);
+    FG_eval fg_eval(N_, m_, xr_, yr_, thetar_, vr_, d_, xinit_, yinit_, thetainit_, ts_, safety_dist_, obst_);
 
     // options
     std::string options;

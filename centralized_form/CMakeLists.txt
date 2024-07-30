@@ -11,7 +11,7 @@ catkin_package(
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  std_msgs  
+  std_msgs
   tf
   
 )
@@ -24,9 +24,9 @@ include_directories(
 )
 
 SET(source_list
-	src/main.cpp
-	src/batch_solver.cpp
-	
+  src/main.cpp
+  src/batch_solver.cpp
+  
 )
 #
 ADD_EXECUTABLE(centralized_form ${source_list})
