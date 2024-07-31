@@ -1,8 +1,9 @@
 #include "udp_master.h"
 
-
-const std::vector<double> x_diff={0.0,0.0,0.0};
-const std::vector<double> y_diff={0.0,-1.0,1.0};
+std::mutex _reconfigure_mtx;
+std::vector<double> x_diff={0.0,0.0,0.0};
+std::vector<double> y_diff={0.0,1.0,-1.0};
+std::vector<double> yaw_diff={0.0,0.0,0.0};
 
 UDPMaster::UDPMaster(int _i){
     std::string cfg_path;
@@ -62,6 +63,8 @@ UDPMaster::UDPMaster(int _i){
     auto send_topics = remote_cfg["send_topics"];
     auto recv_topics = remote_cfg["recv_topics"];
 
+    assert(send_topics[0].as<std::string>().find(std::to_string(remote_id)) != send_topics[0].as<std::string>().npos);
+
     subs.push_back(nh.subscribe(send_topics[0].as<std::string>(), 1000, &UDPMaster::twistCallback, this));
     subs.push_back(nh.subscribe(send_topics[1].as<std::string>(), 1000, &UDPMaster::catCmdCallback, this));
 
@@ -118,11 +121,26 @@ void UDPMaster::transferData() {
     if (len > 0) {
         ros::serialization::IStream stream((uint8_t*) recv_buffer.get(), msg_len);
         ros::serialization::deserialize(stream, odom_msg);
-        odom_msg.pose.pose.position.x+=x_diff[remote_id-1];
-        odom_msg.pose.pose.position.y+=y_diff[remote_id-1];
-        ROS_INFO("relay slave %d odom",remote_id);
+        std::unique_lock<std::mutex> ulck(_reconfigure_mtx);
+        odom_msg.pose.pose.position.x += x_diff[remote_id - 1];
+        odom_msg.pose.pose.position.y += y_diff[remote_id - 1];
+        ulck.unlock();
+        ROS_INFO("relay slave %d odom", remote_id);
         pubs[0].publish(odom_msg);
         ros::serialization::deserialize(stream, bool_msg);
         pubs[1].publish(bool_msg);
     }
+}
+
+void reconfigureCallback(udp_relay::initialPoseConfig& config, uint32_t level) {
+    std::unique_lock<std::mutex> ulck(_reconfigure_mtx);
+    x_diff[0] = config.robot1_x;
+    x_diff[1] = config.robot2_x;
+    x_diff[2] = config.robot3_x;
+    y_diff[0] = config.robot1_y;
+    y_diff[1] = config.robot2_y;
+    y_diff[2] = config.robot3_y;
+    yaw_diff[0] = config.robot1_yaw;
+    yaw_diff[1] = config.robot2_yaw;
+    yaw_diff[2] = config.robot3_yaw;
 }

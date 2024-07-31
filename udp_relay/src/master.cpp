@@ -1,9 +1,13 @@
 #include "udp_master.h"
 
-
 int main(int argc, char** argv) {
     ros::init(argc, argv, "udp_relay");
     ros::NodeHandle nh;
+    dynamic_reconfigure::Server<udp_relay::initialPoseConfig> server;
+    dynamic_reconfigure::Server<udp_relay::initialPoseConfig>::CallbackType f;
+    f = boost::bind(&reconfigureCallback, _1, _2);
+    server.setCallback(f);
+
     std::string cfg_path;
     ros::param::get("/cfg_path", cfg_path);
     YAML::Node cfg = YAML::LoadFile(cfg_path);

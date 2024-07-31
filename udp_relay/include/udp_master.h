@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <yaml-cpp/yaml.h>
 #include <mutex>
+#include <dynamic_reconfigure/server.h>
+#include "udp_relay/initialPoseConfig.h"
 
 class UDPMaster {
 public:
@@ -34,3 +36,5 @@ private:
     std_msgs::Bool bool_buf;
     std::mutex _mtx;
 };
+
+void reconfigureCallback(udp_relay::initialPoseConfig& config, uint32_t level);
