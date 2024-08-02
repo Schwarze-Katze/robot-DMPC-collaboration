@@ -10,6 +10,7 @@ int main(int argc, char** argv) {
 
     std::string cfg_path;
     ros::param::get("/cfg_path", cfg_path);
+    ROS_INFO("config path: %s", cfg_path.c_str());
     YAML::Node cfg = YAML::LoadFile(cfg_path);
     int remote_cnt = cfg["remote"].size();
     std::vector<std::shared_ptr<UDPMaster>> udpComm;
@@ -26,8 +27,13 @@ int main(int argc, char** argv) {
         master_twist_pub.publish(*msg);
         };
     auto odomCallback = [&](const nav_msgs::Odometry::ConstPtr& msg) {
+        extern std::vector<double> x_diff, y_diff, yaw_diff;
+        nav_msgs::Odometry odom_msg = *msg;
+        auto id = udpComm[0]->self_id;
+        odom_msg.pose.pose.position.x += x_diff[id - 1];
+        odom_msg.pose.pose.position.y += y_diff[id - 1];
         ROS_INFO("relay master odom");
-        master_odom_pub.publish(*msg);
+        master_odom_pub.publish(odom_msg);
         };
 
     ros::Subscriber master_twist_sub = nh.subscribe<geometry_msgs::Twist>("/robot1/cmd_vel", 1000, twistCallback);

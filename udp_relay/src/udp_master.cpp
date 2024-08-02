@@ -12,7 +12,7 @@ UDPMaster::UDPMaster(int _i){
     auto self_cfg = cfg["self"];
     auto remote_cfg = cfg["remote"][_i];
 
-    int self_id = 0;
+    self_id = 0;
     if (self_cfg["id"]) {
         self_id = self_cfg["id"].as<int>();
     }
@@ -63,6 +63,8 @@ UDPMaster::UDPMaster(int _i){
     auto send_topics = remote_cfg["send_topics"];
     auto recv_topics = remote_cfg["recv_topics"];
 
+    assert(send_topics.size() == 2);
+    assert(recv_topics.size() == 2);
     assert(send_topics[0].as<std::string>().find(std::to_string(remote_id)) != send_topics[0].as<std::string>().npos);
 
     subs.push_back(nh.subscribe(send_topics[0].as<std::string>(), 1000, &UDPMaster::twistCallback, this));
@@ -71,7 +73,7 @@ UDPMaster::UDPMaster(int _i){
     pubs.push_back(nh.advertise<nav_msgs::Odometry>(recv_topics[0].as<std::string>(), 1000));
     pubs.push_back(nh.advertise<std_msgs::Bool>(recv_topics[1].as<std::string>(), 1000));
 
-    ROS_INFO("UDP Communication Initialized.");
+    ROS_INFO("UDP Connection Between #%d Initialized as Index %d", remote_id, _i);
 }
 
 UDPMaster::~UDPMaster() {
@@ -124,6 +126,8 @@ void UDPMaster::transferData() {
         std::unique_lock<std::mutex> ulck(_reconfigure_mtx);
         odom_msg.pose.pose.position.x += x_diff[remote_id - 1];
         odom_msg.pose.pose.position.y += y_diff[remote_id - 1];
+        //
+        // auto quat = odom_msg.pose.pose.orientation;
         ulck.unlock();
         ROS_INFO("relay slave %d odom", remote_id);
         pubs[0].publish(odom_msg);
