@@ -24,7 +24,6 @@ UDPMaster::UDPMaster(int _i){
     std::string REMOTE_IP = remote_cfg["ip"].as<std::string>();
     int REMOTE_PORT = remote_cfg["send_port"].as<int>();
 
-
     recv_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (recv_sock < 0) {
         ROS_ERROR("Socket creation failed");
@@ -47,6 +46,11 @@ UDPMaster::UDPMaster(int _i){
         exit(1);
     }
 
+    int buffer_size = 1024; // 设置为1MB
+    if (setsockopt(recv_sock, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size)) < 0) {
+        ROS_ERROR("Setting receive buffer size failed");
+    }
+
     // Remote address setup
     memset(&remote_addr, 0, sizeof(remote_addr));
     remote_addr.sin_family = AF_INET;
@@ -67,11 +71,11 @@ UDPMaster::UDPMaster(int _i){
     assert(recv_topics.size() == 2);
     assert(send_topics[0].as<std::string>().find(std::to_string(remote_id)) != send_topics[0].as<std::string>().npos);
 
-    subs.push_back(nh.subscribe(send_topics[0].as<std::string>(), 1000, &UDPMaster::twistCallback, this));
-    subs.push_back(nh.subscribe(send_topics[1].as<std::string>(), 1000, &UDPMaster::catCmdCallback, this));
+    subs.push_back(nh.subscribe(send_topics[0].as<std::string>(), 10, &UDPMaster::twistCallback, this));
+    subs.push_back(nh.subscribe(send_topics[1].as<std::string>(), 10, &UDPMaster::catCmdCallback, this));
 
-    pubs.push_back(nh.advertise<nav_msgs::Odometry>(recv_topics[0].as<std::string>(), 1000));
-    pubs.push_back(nh.advertise<std_msgs::Bool>(recv_topics[1].as<std::string>(), 1000));
+    pubs.push_back(nh.advertise<nav_msgs::Odometry>(recv_topics[0].as<std::string>(), 10));
+    pubs.push_back(nh.advertise<std_msgs::Bool>(recv_topics[1].as<std::string>(), 10));
 
     ROS_INFO("UDP Connection Between #%d Initialized as Index %d", remote_id, _i);
 }
