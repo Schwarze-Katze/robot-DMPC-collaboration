@@ -26,6 +26,10 @@ public:
     void transferData();
 
     int self_id, remote_id;
+
+private:
+    void sendData();
+    void recvData();
 private:
     int recv_sock, send_sock;
     struct sockaddr_in local_addr, remote_addr;
@@ -37,4 +41,4 @@ private:
     std::mutex _mtx;
 };
 
-void reconfigureCallback(udp_relay::initialPoseConfig& config, uint32_t level);
+void poseDiffCallback(udp_relay::initialPoseConfig& config, uint32_t level);

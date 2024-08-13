@@ -5,7 +5,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     dynamic_reconfigure::Server<udp_relay::initialPoseConfig> server;
     dynamic_reconfigure::Server<udp_relay::initialPoseConfig>::CallbackType f;
-    f = boost::bind(&reconfigureCallback, _1, _2);
+    f = boost::bind(&poseDiffCallback, _1, _2);
     server.setCallback(f);
 
     std::string cfg_path;

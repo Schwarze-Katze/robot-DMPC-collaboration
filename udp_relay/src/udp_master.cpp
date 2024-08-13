@@ -90,7 +90,6 @@ void UDPMaster::twistCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     twist_buf = *msg;
     return;
     ROS_INFO("relay slave %d twist", remote_id);
-    
 }
 
 void UDPMaster::catCmdCallback(const std_msgs::Bool::ConstPtr& msg) {
@@ -102,6 +101,14 @@ void UDPMaster::catCmdCallback(const std_msgs::Bool::ConstPtr& msg) {
 
 void UDPMaster::transferData() {
     // Send
+    sendData();
+
+    // Recv
+    recvData();
+    recvData();//receive twice to avoid unmatched frequency
+}
+
+void UDPMaster::sendData() {
     std::unique_lock<std::mutex> ulck(_mtx);
     uint32_t serial_size = 16;
     serial_size += ros::serialization::serializationLength(twist_buf);
@@ -112,8 +119,9 @@ void UDPMaster::transferData() {
     ros::serialization::serialize(stream, bool_buf);
     ulck.unlock();
     sendto(send_sock, send_buffer.get(), serial_size, 0, (struct sockaddr*) &remote_addr, sizeof(remote_addr));
+}
 
-    // Recv
+void UDPMaster::recvData() {
     nav_msgs::Odometry odom_msg;
     std_msgs::Bool bool_msg;
     uint32_t msg_len = 16;
@@ -140,7 +148,7 @@ void UDPMaster::transferData() {
     }
 }
 
-void reconfigureCallback(udp_relay::initialPoseConfig& config, uint32_t level) {
+void poseDiffCallback(udp_relay::initialPoseConfig& config, uint32_t level) {
     std::unique_lock<std::mutex> ulck(_reconfigure_mtx);
     x_diff[0] = config.robot1_x;
     x_diff[1] = config.robot2_x;
