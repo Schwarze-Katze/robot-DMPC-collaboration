@@ -22,6 +22,9 @@ public:
     void transferData();
 
 private:
+    void sendData();
+    void recvData();
+private:
     int recv_sock, send_sock;
     struct sockaddr_in local_addr, remote_addr;
     ros::NodeHandle nh;

@@ -41,6 +41,11 @@ UDPSlave::UDPSlave() {
         exit(1);
     }
 
+    int buffer_size = 1024; // 设置为1MB
+    if (setsockopt(recv_sock, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size)) < 0) {
+        ROS_ERROR("Setting receive buffer size failed");
+    }
+
     // Remote address setup
     memset(&remote_addr, 0, sizeof(remote_addr));
     remote_addr.sin_family = AF_INET;
@@ -56,6 +61,9 @@ UDPSlave::UDPSlave() {
     nh = ros::NodeHandle();
     auto send_topics = remote_cfg["send_topics"];
     auto recv_topics = remote_cfg["recv_topics"];
+
+    assert(send_topics.size() == 2);
+    assert(recv_topics.size() == 2);
 
     subs.push_back(nh.subscribe(send_topics[0].as<std::string>(), 1000, &UDPSlave::odomCallback, this));
     subs.push_back(nh.subscribe(send_topics[1].as<std::string>(), 1000, &UDPSlave::catCmdCallback, this));
@@ -94,7 +102,15 @@ void UDPSlave::catCmdCallback(const std_msgs::Bool::ConstPtr& msg) {
 
 void UDPSlave::transferData() {
     // Send
-    std::unique_lock<std::mutex> ulck(_mtx);
+    sendData();
+
+    // Recv
+    recvData();
+    recvData();//receive twice to avoid unmatched frequency
+}
+
+void UDPSlave::sendData() {
+std::unique_lock<std::mutex> ulck(_mtx);
     uint32_t serial_size = 16;
     serial_size += ros::serialization::serializationLength(odom_buf);
     serial_size += ros::serialization::serializationLength(bool_buf);
@@ -104,7 +120,9 @@ void UDPSlave::transferData() {
     ros::serialization::serialize(stream, bool_buf);
     ulck.unlock();
     sendto(send_sock, send_buffer.get(), serial_size, 0, (struct sockaddr*) &remote_addr, sizeof(remote_addr));
+}
 
+void UDPSlave::recvData() {
     // Recv
     geometry_msgs::Twist twist_msg;
     std_msgs::Bool bool_msg;
