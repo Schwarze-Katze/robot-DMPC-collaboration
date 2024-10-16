@@ -70,13 +70,13 @@ bool ArUcoLocation::getArUcoPose(std::vector<int> ids, std::vector<std::vector<c
     double qrSize = 0.05; // 1厘米的ArUco码
 
     // 初始化相机内参矩阵 (3x3)
-    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 1.02226575e+03, 0.00000000e+00, 9.80481177e+02,
-        0.00000000e+00, 1.01737850e+03, 4.94844585e+02,
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 994.94779608, 0.00000000e+00, 949.41958243,
+        0.00000000e+00, 994.83295499, 455.9985767,
         0.00000000e+00, 0.00000000e+00, 1.00000000e+00);
 
     // 初始化失真系数 (5x1)
-    cv::Mat distCoeffs = (cv::Mat_<double>(5, 1) << 4.88910348e-03, -1.82542947e-01, 5.57099089e-04,
-        1.95687004e-03, 6.85519085e-01);
+    cv::Mat distCoeffs = (cv::Mat_<double>(5, 1) << -0.02966125, 0.06407681, -0.00890747,
+        -0.0074752, -0.04464296);
 
     // 计算位姿
     std::vector<cv::Vec3d> rvecs, tvecs;
