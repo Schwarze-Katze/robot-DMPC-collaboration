@@ -20,7 +20,7 @@ bool ArUcoLocation::init(int webcamIndex, bool showVideo) {
     return true;
 }
 
-bool ArUcoLocation::getArUcoPose(ArUcoPose_t* arucoPose) {
+bool ArUcoLocation::getArUcoPose(std::vector<ArUcoPose_t>& posevec) {
     // 抓取摄像头帧
     cv::Mat frame;
     capture >> frame;
@@ -45,7 +45,7 @@ bool ArUcoLocation::getArUcoPose(ArUcoPose_t* arucoPose) {
         }
 
         // 计算位姿
-        return getArUcoPose(ids, corners, arucoPose);
+        return getArUcoPose(ids, corners, posevec);
     }
     else {
         if (showVideo) {
@@ -56,71 +56,73 @@ bool ArUcoLocation::getArUcoPose(ArUcoPose_t* arucoPose) {
     }
 }
 
-bool ArUcoLocation::getArUcoPose(std::vector<int> ids, std::vector<std::vector<cv::Point2f>> corners, ArUcoPose_t* arucoPose) {
-    // 这里的实现假设检测到的第一个ArUco码是需要计算位姿的对象
-    // 可以根据需求扩展处理多个ArUco码
-    if (corners.empty()) {
+bool ArUcoLocation::getArUcoPose(std::vector<int> &ids, std::vector<std::vector<cv::Point2f>>& corners, std::vector<ArUcoPose_t>& posevec) {
+    if (ids.empty()) {
         return false;
     }
+    for (int i = 0;i < ids.size();++i) {
+        ArUcoPose_t arucoPose;
+        arucoPose.id = ids[i];
 
-    // 获取ArUco码的四个顶点
-    const std::vector<cv::Point2f>& markerCorners = corners[0];
+        // 获取ArUco码的四个顶点
+        const std::vector<cv::Point2f>& markerCorners = corners[i];
 
-    // 假设你有预定的ArUco码实际尺寸 qrSize
-    double qrSize = 0.05; // 1厘米的ArUco码
+        // 假设你有预定的ArUco码实际尺寸 qrSize
+        double qrSize = 0.05; // 1厘米的ArUco码
 
-    // 初始化相机内参矩阵 (3x3)
-    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 994.94779608, 0.00000000e+00, 949.41958243,
-        0.00000000e+00, 994.83295499, 455.9985767,
-        0.00000000e+00, 0.00000000e+00, 1.00000000e+00);
+        // 初始化相机内参矩阵 (3x3)
+        cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 994.94779608, 0.00000000e+00, 949.41958243,
+            0.00000000e+00, 994.83295499, 455.9985767,
+            0.00000000e+00, 0.00000000e+00, 1.00000000e+00);
 
-    // 初始化失真系数 (5x1)
-    cv::Mat distCoeffs = (cv::Mat_<double>(5, 1) << -0.02966125, 0.06407681, -0.00890747,
-        -0.0074752, -0.04464296);
+        // 初始化失真系数 (5x1)
+        cv::Mat distCoeffs = (cv::Mat_<double>(5, 1) << -0.02966125, 0.06407681, -0.00890747,
+            -0.0074752, -0.04464296);
 
-    // 计算位姿
-    std::vector<cv::Vec3d> rvecs, tvecs;
-    cv::aruco::estimatePoseSingleMarkers(corners, qrSize, cameraMatrix, distCoeffs, rvecs, tvecs);
+        // 计算位姿
+        std::vector<cv::Vec3d> rvecs, tvecs;
+        cv::aruco::estimatePoseSingleMarkers(corners, qrSize, cameraMatrix, distCoeffs, rvecs, tvecs);
 
-    // 提取第一个ArUco码的位姿信息
-    cv::Vec3d rotation = rvecs[0];
-    cv::Vec3d translation = tvecs[0];
+        // 提取第一个ArUco码的位姿信息
+        cv::Vec3d rotation = rvecs[0];
+        cv::Vec3d translation = tvecs[0];
 
-    // 使用旋转和平移向量计算姿态
-    arucoPose->x = translation[0];
-    arucoPose->y = translation[1];
-    arucoPose->z = translation[2];  // z表示距离
-    // 计算旋转矩阵并提取roll, pitch, yaw
-    cv::Mat rotMat;
-    cv::Rodrigues(rotation, rotMat);  // 将旋转向量转换为旋转矩阵
+        // 使用旋转和平移向量计算姿态
+        arucoPose.x = translation[0];
+        arucoPose.y = translation[1];
+        arucoPose.z = translation[2];  // z表示距离
+        // 计算旋转矩阵并提取roll, pitch, yaw
+        cv::Mat rotMat;
+        cv::Rodrigues(rotation, rotMat);  // 将旋转向量转换为旋转矩阵
 
-    // 提取欧拉角 (roll, pitch, yaw)
-    double sy = sqrt(rotMat.at<double>(0, 0) * rotMat.at<double>(0, 0) + rotMat.at<double>(1, 0) * rotMat.at<double>(1, 0));
+        // 提取欧拉角 (roll, pitch, yaw)
+        double sy = sqrt(rotMat.at<double>(0, 0) * rotMat.at<double>(0, 0) + rotMat.at<double>(1, 0) * rotMat.at<double>(1, 0));
 
-    bool singular = sy < 1e-6;  // 判断是否接近平行
+        bool singular = sy < 1e-6;  // 判断是否接近平行
 
-    double roll, pitch, yaw;
-    if (!singular) {
-        roll = atan2(rotMat.at<double>(2, 1), rotMat.at<double>(2, 2));
-        pitch = atan2(-rotMat.at<double>(2, 0), sy);
-        yaw = atan2(rotMat.at<double>(1, 0), rotMat.at<double>(0, 0));
+        double roll, pitch, yaw;
+        if (!singular) {
+            roll = atan2(rotMat.at<double>(2, 1), rotMat.at<double>(2, 2));
+            pitch = atan2(-rotMat.at<double>(2, 0), sy);
+            yaw = atan2(rotMat.at<double>(1, 0), rotMat.at<double>(0, 0));
+        }
+        else {
+            roll = atan2(-rotMat.at<double>(1, 2), rotMat.at<double>(1, 1));
+            pitch = atan2(-rotMat.at<double>(2, 0), sy);
+            yaw = 0;
+        }
+        roll += M_PI;
+        if (roll > M_PI) {
+            roll -= 2 * M_PI;
+        }
+
+        // 保存roll, pitch, yaw信息
+        arucoPose.roll = yaw;
+        arucoPose.pitch = roll;
+        arucoPose.yaw = pitch;
+        arucoPose.rpyToQuaternion();
+        posevec.push_back(arucoPose);
     }
-    else {
-        roll = atan2(-rotMat.at<double>(1, 2), rotMat.at<double>(1, 1));
-        pitch = atan2(-rotMat.at<double>(2, 0), sy);
-        yaw = 0;
-    }
-    roll += M_PI;
-    if (roll > M_PI) {
-        roll -= 2 * M_PI;
-    }
-
-    // 保存roll, pitch, yaw信息
-    arucoPose->roll = yaw;
-    arucoPose->pitch = roll;
-    arucoPose->yaw = pitch;
-    arucoPose->rpyToQuaternion();
-
     return true;
 }
 

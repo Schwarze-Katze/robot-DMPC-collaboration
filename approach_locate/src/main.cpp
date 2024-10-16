@@ -9,21 +9,30 @@ int main(int argc, char* argv[]) {
     ArUcoLocation arLoc;
     if (!arLoc.init(0, true))
         return 1;
-    ArUcoPose_t pose;
-    geometry_msgs::Pose pose_msg;
+    std::vector<ArUcoPose_t> posevec;
+    geometry_msgs::PoseStamped pose_msg;
     while (ros::ok()) {
-        if (arLoc.getArUcoPose(&pose)) {
-            double rInDegree = pose.roll * 180 / 3.1416;
-            double pInDegree = pose.pitch * 180 / 3.1416;
-            double yInDegree = pose.yaw * 180 / 3.1416;
-            pose_msg.position.x = pose.x;
-            pose_msg.position.y = pose.y;
-            pose_msg.position.z = pose.z;
-            pose_msg.orientation.w = pose.qw;
-            pose_msg.orientation.x = pose.qx;
-            pose_msg.orientation.y = pose.qy;
-            pose_msg.orientation.z = pose.qz;
-            posPub.publish(pose_msg);
+        if (arLoc.getArUcoPose(posevec)) {
+            for (auto& pose : posevec) {
+                if (pose.id == 203) {
+                    pose_msg.header.frame_id = "rotate_link";
+                }
+                else if (pose.id == 240) {
+                    pose_msg.header.frame_id = "body_link";
+                }
+                else {
+                    continue;
+                }
+                pose_msg.header.stamp = ros::Time::now();
+                pose_msg.pose.position.x = pose.x;
+                pose_msg.pose.position.y = pose.y;
+                pose_msg.pose.position.z = pose.z;
+                pose_msg.pose.orientation.w = pose.qw;
+                pose_msg.pose.orientation.x = pose.qx;
+                pose_msg.pose.orientation.y = pose.qy;
+                pose_msg.pose.orientation.z = pose.qz;
+                posPub.publish(pose_msg);
+            }
         }
         ros::spinOnce();
         loop_rate.sleep();

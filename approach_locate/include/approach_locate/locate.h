@@ -4,13 +4,15 @@
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
-#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
 
 //调试窗口标题
 #define DEBUGUI_TITLE "ArUco Detection"
 
 // 二维码位姿结构体
-typedef struct ArUcoPose {
+typedef class ArUcoPose {
+public:
+    uint32_t id;
     double x;
     double y;
     double z;
@@ -35,6 +37,10 @@ typedef struct ArUcoPose {
         qy = cr * sp * cy + sr * cp * sy;
         qz = cr * cp * sy - sr * sp * cy;
     }
+
+    bool operator<(const ArUcoPose& r) {
+        return this->id < r.id or (this->id == r.id and this->x < r.x);
+    }
 } ArUcoPose_t;
 
 // ArUco定位算法
@@ -43,7 +49,7 @@ public:
     // 初始化摄像头和参数
     bool init(int webcamIndex, bool showVideo);
     // 获取ArUco码的位姿
-    bool getArUcoPose(ArUcoPose_t* arucoPose);
+    bool getArUcoPose(std::vector<ArUcoPose_t>& posevec);
     // 销毁资源
     bool destroy();
 
@@ -63,7 +69,7 @@ private:
 
 private:
     // 计算位姿
-    bool getArUcoPose(std::vector<int> ids, std::vector<std::vector<cv::Point2f>> corners, ArUcoPose_t* arucoPose);
+    bool getArUcoPose(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners, std::vector<ArUcoPose_t>& posevec);
 };
 
 #endif
