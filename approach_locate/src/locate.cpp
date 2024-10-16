@@ -2,7 +2,7 @@
 
 bool ArUcoLocation::init(int webcamIndex, double hViewAngle, bool debugUI) {
     // 打开摄像头
-    capture.open("udp://127.0.0.1:15000");
+    capture.open(webcamIndex);
     if (!capture.isOpened())
         return false;
 
@@ -15,7 +15,7 @@ bool ArUcoLocation::init(int webcamIndex, double hViewAngle, bool debugUI) {
 
     // 如果开启调试模式，则创建窗口
     if (debugUI) {
-        cv::namedWindow(DEBUGUI_TITLE, cv::WINDOW_AUTOSIZE);
+        cv::namedWindow(DEBUGUI_TITLE, cv::WINDOW_KEEPRATIO);
     }
 
     return true;

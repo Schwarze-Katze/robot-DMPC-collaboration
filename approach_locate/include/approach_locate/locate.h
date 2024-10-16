@@ -1,13 +1,11 @@
-#ifndef QRLOCATION_H
-#define QRLOCATION_H
+#ifndef LOCATE_H
+#define LOCATE_H
 #include <bits/stdc++.h>
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
 #include <geometry_msgs/Pose.h>
 
-//二维码倾斜阈值
-#define INCLINATION_THRESHOLD 0.1
 //调试窗口标题
 #define DEBUGUI_TITLE "ArUco Detection"
 
