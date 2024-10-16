@@ -41,7 +41,7 @@ typedef struct ArUcoPose {
 class ArUcoLocation {
 public:
     // 初始化摄像头和参数
-    bool init(int webcamIndex, double hViewAngle, bool debugUI);
+    bool init(int webcamIndex, bool showVideo);
     // 获取ArUco码的位姿
     bool getArUcoPose(ArUcoPose_t* arucoPose);
     // 销毁资源
@@ -53,7 +53,7 @@ private:
     // 摄像头上下视角
     double hViewAngle;
     // 是否开启调试窗口
-    bool debugUI;
+    bool showVideo;
     // 灰度图
     cv::Mat grayFrame;
     // ArUco字典

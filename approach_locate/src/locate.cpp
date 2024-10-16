@@ -1,20 +1,19 @@
 #include "approach_locate/locate.h"
 
-bool ArUcoLocation::init(int webcamIndex, double hViewAngle, bool debugUI) {
+bool ArUcoLocation::init(int webcamIndex, bool showVideo) {
     // 打开摄像头
     capture.open(webcamIndex);
     if (!capture.isOpened())
         return false;
 
-    this->hViewAngle = hViewAngle;
-    this->debugUI = debugUI;
+    this->showVideo = showVideo;
 
     // 创建ArUco字典和检测参数
     dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
     detectorParams = cv::aruco::DetectorParameters::create();
 
     // 如果开启调试模式，则创建窗口
-    if (debugUI) {
+    if (showVideo) {
         cv::namedWindow(DEBUGUI_TITLE, cv::WINDOW_KEEPRATIO);
     }
 
@@ -39,7 +38,7 @@ bool ArUcoLocation::getArUcoPose(ArUcoPose_t* arucoPose) {
     // 如果检测到ArUco码
     if (!ids.empty()) {
         // 显示调试窗口
-        if (debugUI) {
+        if (showVideo) {
             cv::aruco::drawDetectedMarkers(frame, corners, ids);
             cv::imshow(DEBUGUI_TITLE, frame);
             cv::waitKey(10);
@@ -49,7 +48,7 @@ bool ArUcoLocation::getArUcoPose(ArUcoPose_t* arucoPose) {
         return getArUcoPose(ids, corners, arucoPose);
     }
     else {
-        if (debugUI) {
+        if (showVideo) {
             cv::imshow(DEBUGUI_TITLE, frame);
             cv::waitKey(10);
         }
@@ -127,7 +126,7 @@ bool ArUcoLocation::getArUcoPose(std::vector<int> ids, std::vector<std::vector<c
 
 bool ArUcoLocation::destroy() {
     // 销毁窗口
-    if (debugUI) {
+    if (showVideo) {
         cv::destroyWindow(DEBUGUI_TITLE);
     }
 

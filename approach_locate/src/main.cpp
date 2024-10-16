@@ -7,7 +7,7 @@ int main(int argc, char* argv[]) {
 
     ros::Publisher posPub = n.advertise<geometry_msgs::Pose>("/front_pose", 10);
     ArUcoLocation arLoc;
-    if (!arLoc.init(1, 0.60, true))
+    if (!arLoc.init(0, true))
         return 1;
     ArUcoPose_t pose;
     geometry_msgs::Pose pose_msg;
