@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="approach_locate" type="approach_locate_node" name="locate" required="true"
+        output="screen" launch-prefix="gdb -ex run --args">
+    </node>
+</launch>

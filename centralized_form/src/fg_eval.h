@@ -275,12 +275,7 @@ namespace {
                     //std::cout<<"ss6 : "<<j*5<<" "<<j*5+1<<" "<<j*5+2<<" "<<j*5+3<<" "<<j*5+4<<" "<<j*5+5<<" "<<j*5+6<<" "<<j*5+7<<std::endl;
                 }
 
-            }; //fg[3Nm] is the last constraint 
-
-
-
-
-
+            }; //fg[3Nm] is the last constraint
 
 
             // inter-vehicles avoidance constraints:

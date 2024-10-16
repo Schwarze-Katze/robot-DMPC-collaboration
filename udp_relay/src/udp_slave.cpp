@@ -41,7 +41,7 @@ UDPSlave::UDPSlave() {
         exit(1);
     }
 
-    int buffer_size = 1024; // 设置为1MB
+    int buffer_size = 4 * 1024; // 设置为1MB
     if (setsockopt(recv_sock, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size)) < 0) {
         ROS_ERROR("Setting receive buffer size failed");
     }
@@ -50,7 +50,7 @@ UDPSlave::UDPSlave() {
     memset(&remote_addr, 0, sizeof(remote_addr));
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP.c_str());//向主机发送
-    remote_addr.sin_port = htons(REMOTE_PORT);
+    remote_addr.sin_port = htons(REMOTE_PORT); 
 
     // if (bind(send_sock, (struct sockaddr*) &remote_addr, sizeof(remote_addr)) < 0) {
     //     ROS_ERROR("Socket bind failed");
@@ -110,7 +110,7 @@ void UDPSlave::transferData() {
 }
 
 void UDPSlave::sendData() {
-std::unique_lock<std::mutex> ulck(_mtx);
+    std::unique_lock<std::mutex> ulck(_mtx);
     uint32_t serial_size = 16;
     serial_size += ros::serialization::serializationLength(odom_buf);
     serial_size += ros::serialization::serializationLength(bool_buf);
