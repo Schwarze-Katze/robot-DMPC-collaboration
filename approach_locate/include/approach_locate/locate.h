@@ -66,10 +66,15 @@ private:
     cv::Ptr<cv::aruco::Dictionary> dictionary;
     // ArUco检测参数
     cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
+    //相机内参矩阵 (3x3)
+    cv::Mat cameraMatrix;
+    //失真系数(5x1)
+    cv::Mat distCoeffs;
+
 
 private:
     // 计算位姿
-    bool getArUcoPose(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners, std::vector<ArUcoPose_t>& posevec);
+    bool getArUcoPose(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners, std::vector<ArUcoPose_t>& posevec, cv::Mat& frame);
 };
 
 #endif

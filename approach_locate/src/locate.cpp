@@ -12,6 +12,15 @@ bool ArUcoLocation::init(int webcamIndex, bool showVideo) {
     dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
     detectorParams = cv::aruco::DetectorParameters::create();
 
+    // 初始化相机内参矩阵 (3x3)
+    cameraMatrix = (cv::Mat_<double>(3, 3) << 994.94779608, 0.00000000e+00, 949.41958243,
+        0.00000000e+00, 994.83295499, 455.9985767,
+        0.00000000e+00, 0.00000000e+00, 1.00000000e+00);
+
+    // 初始化失真系数 (5x1)
+    distCoeffs = (cv::Mat_<double>(5, 1) << -0.02966125, 0.06407681, -0.00890747,
+        -0.0074752, -0.04464296);
+
     // 如果开启调试模式，则创建窗口
     if (showVideo) {
         cv::namedWindow(DEBUGUI_TITLE, cv::WINDOW_KEEPRATIO);
@@ -37,15 +46,18 @@ bool ArUcoLocation::getArUcoPose(std::vector<ArUcoPose_t>& posevec) {
 
     // 如果检测到ArUco码
     if (!ids.empty()) {
+        bool detect_status = false;
         // 显示调试窗口
         if (showVideo) {
             cv::aruco::drawDetectedMarkers(frame, corners, ids);
+            detect_status = getArUcoPose(ids, corners, posevec, frame);
+
             cv::imshow(DEBUGUI_TITLE, frame);
             cv::waitKey(10);
         }
 
         // 计算位姿
-        return getArUcoPose(ids, corners, posevec);
+        return detect_status;
     }
     else {
         if (showVideo) {
@@ -56,7 +68,7 @@ bool ArUcoLocation::getArUcoPose(std::vector<ArUcoPose_t>& posevec) {
     }
 }
 
-bool ArUcoLocation::getArUcoPose(std::vector<int> &ids, std::vector<std::vector<cv::Point2f>>& corners, std::vector<ArUcoPose_t>& posevec) {
+bool ArUcoLocation::getArUcoPose(std::vector<int>& ids, std::vector<std::vector<cv::Point2f>>& corners, std::vector<ArUcoPose_t>& posevec, cv::Mat& frame) {
     if (ids.empty()) {
         return false;
     }
@@ -70,18 +82,13 @@ bool ArUcoLocation::getArUcoPose(std::vector<int> &ids, std::vector<std::vector<
         // 假设你有预定的ArUco码实际尺寸 qrSize
         double qrSize = 0.05; // 1厘米的ArUco码
 
-        // 初始化相机内参矩阵 (3x3)
-        cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 994.94779608, 0.00000000e+00, 949.41958243,
-            0.00000000e+00, 994.83295499, 455.9985767,
-            0.00000000e+00, 0.00000000e+00, 1.00000000e+00);
-
-        // 初始化失真系数 (5x1)
-        cv::Mat distCoeffs = (cv::Mat_<double>(5, 1) << -0.02966125, 0.06407681, -0.00890747,
-            -0.0074752, -0.04464296);
-
         // 计算位姿
         std::vector<cv::Vec3d> rvecs, tvecs;
         cv::aruco::estimatePoseSingleMarkers(corners, qrSize, cameraMatrix, distCoeffs, rvecs, tvecs);
+
+        // 绘制坐标系
+        double axisLength = 0.02;
+        cv::aruco::drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, axisLength);
 
         // 提取第一个ArUco码的位姿信息
         cv::Vec3d rotation = rvecs[0];
