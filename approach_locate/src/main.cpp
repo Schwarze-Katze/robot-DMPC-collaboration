@@ -5,7 +5,7 @@ int main(int argc, char* argv[]) {
     ros::NodeHandle n;
     ros::Rate loop_rate(60.0);
 
-    ros::Publisher posPub = n.advertise<geometry_msgs::Pose>("/front_pose", 10);
+    ros::Publisher posPub = n.advertise<geometry_msgs::PoseStamped>("/front_pose", 10);
     ArUcoLocation arLoc;
     if (!arLoc.init(0, true))
         return 1;
@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
                 pose_msg.pose.orientation.z = pose.qz;
                 posPub.publish(pose_msg);
             }
+            posevec.clear();
         }
         ros::spinOnce();
         loop_rate.sleep();

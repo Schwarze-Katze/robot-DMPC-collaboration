@@ -2,9 +2,14 @@
 
 bool ArUcoLocation::init(int webcamIndex, bool showVideo) {
     // 打开摄像头
-    capture.open(webcamIndex);
+    capture.open(webcamIndex, cv::CAP_V4L2);
     if (!capture.isOpened())
         return false;
+
+    //设置分辨率，编码格式
+	capture.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+	capture.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+	capture.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
 
     this->showVideo = showVideo;
 
@@ -72,32 +77,27 @@ bool ArUcoLocation::getArUcoPose(std::vector<int>& ids, std::vector<std::vector<
     if (ids.empty()) {
         return false;
     }
+    // ArUco码实际尺寸 qrSize
+    double qrSize = 0.04; // 1厘米的ArUco码
+    // 计算位姿
+    std::vector<cv::Vec3d> rvecs, tvecs;
+    cv::aruco::estimatePoseSingleMarkers(corners, qrSize, cameraMatrix, distCoeffs, rvecs, tvecs);
     for (int i = 0;i < ids.size();++i) {
         ArUcoPose_t arucoPose;
         arucoPose.id = ids[i];
 
-        // 获取ArUco码的四个顶点
-        const std::vector<cv::Point2f>& markerCorners = corners[i];
-
-        // 假设你有预定的ArUco码实际尺寸 qrSize
-        double qrSize = 0.05; // 1厘米的ArUco码
-
-        // 计算位姿
-        std::vector<cv::Vec3d> rvecs, tvecs;
-        cv::aruco::estimatePoseSingleMarkers(corners, qrSize, cameraMatrix, distCoeffs, rvecs, tvecs);
-
         // 绘制坐标系
         double axisLength = 0.02;
-        cv::aruco::drawAxis(frame, cameraMatrix, distCoeffs, rvecs, tvecs, axisLength);
+        cv::aruco::drawAxis(frame, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], axisLength);
 
-        // 提取第一个ArUco码的位姿信息
-        cv::Vec3d rotation = rvecs[0];
-        cv::Vec3d translation = tvecs[0];
+        // 提取ArUco码的位姿信息
+        cv::Vec3d rotation = rvecs[i];
+        cv::Vec3d translation = tvecs[i];
 
         // 使用旋转和平移向量计算姿态
-        arucoPose.x = translation[0];
-        arucoPose.y = translation[1];
-        arucoPose.z = translation[2];  // z表示距离
+        arucoPose.x = -translation[0];
+        arucoPose.y = translation[2];
+        arucoPose.z = translation[1];
         // 计算旋转矩阵并提取roll, pitch, yaw
         cv::Mat rotMat;
         cv::Rodrigues(rotation, rotMat);  // 将旋转向量转换为旋转矩阵
