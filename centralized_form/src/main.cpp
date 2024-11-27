@@ -20,13 +20,14 @@ std::vector<double> xinit;
 std::vector<double> yinit;
 std::vector<double> thetainit;
 double ts = 0.2;
-double safety_dist = 0.7;
+double safety_dist = 0.5;
 double distanceThreshold = safety_dist * 0.5;
 bool solve_success = false;
 std::vector<std::shared_ptr<Vehicle>> vehicles;
 std::vector<std::vector<double>> obst;
 std::vector<std::vector<std::vector<double>>> goals;
-std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xref, yref, thetaref, vref, d, xinit, yinit, thetainit, ts, safety_dist * safety_dist, obst));
+std::vector<std::vector<geometry_msgs::Point>> historical_ref_points;//用于可视化历史目标
+std::shared_ptr<BatchSolver> bs(new BatchSolver(N, m, xref, yref, thetaref, vref, d, xinit, yinit, thetainit, ts, safety_dist* safety_dist, obst));
 std::vector<std::vector<std::vector<double>>> pre_states(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(3, 0.0)));
 std::vector<std::vector<std::vector<double>>> pre_inputs(m, std::vector<std::vector<double>>(N + 1, std::vector<double>(2, 0.0)));
 //ros::Publisher vehicle_pub;
@@ -56,9 +57,9 @@ int main(int argc, char* argv[]) {
 
 void Initialize(ros::NodeHandle& n) {
 
-    xinit.push_back(0.0);yinit.push_back(1.0);thetainit.push_back(3.14 / 2.0);
-    xinit.push_back(-3.0);yinit.push_back(-3.0);thetainit.push_back(3.14 / 2.0);
-    xinit.push_back(3.0);yinit.push_back(-3.0);thetainit.push_back(3.14 / 4.0);
+    xinit.push_back(0.0);yinit.push_back(0);thetainit.push_back(0);
+    xinit.push_back(0.0);yinit.push_back(-1.0);thetainit.push_back(0);
+    xinit.push_back(0.0);yinit.push_back(1.0);thetainit.push_back(0);
     //xinit.push_back(3.0);yinit.push_back(0.0);thetainit.push_back(-3.14);
     //xinit.push_back(0.0);yinit.push_back(-3.0);thetainit.push_back(3.14/2.0);
     bs->set_initial_states(xinit, yinit, thetainit);
@@ -144,7 +145,7 @@ void RunMPC() {
     ShowVehicleInRviz(xinit, yinit, thetainit, safety_dist, markerArray);
     bs->set_initial_states(xinit, yinit, thetainit);
     UpdateRef();//update goal
-    ShowRefPoint(xref, yref, thetaref, markerArray);
+    ShowRefPoint(xref, yref, thetaref, markerArray, historical_ref_points);
     bs->set_ref_states(xref, yref, thetaref);
     solve_success = bs->Solve(pre_states, pre_inputs);
 
@@ -177,6 +178,18 @@ void UpdateRef() {
             vref.push_back(spdlim);vref.push_back(spdlim);vref.push_back(spdlim);
             bs->set_ref_states(vref);
         }
+        // 保存当前参考点到历史参考点中
+        if (historical_ref_points.empty()) {
+            historical_ref_points.resize(m);
+        }
+        for (int i = 0; i < m; ++i) {
+            geometry_msgs::Point point;
+            point.x = xref[i];
+            point.y = yref[i];
+            point.z = 0;
+            historical_ref_points[i].push_back(point); // 保存历史参考点
+        }
+
         for (int i = 0;i < m;++i) {
             xref[i] = xorigin + goals[status][i][0];
             yref[i] = yorigin + goals[status][i][1];

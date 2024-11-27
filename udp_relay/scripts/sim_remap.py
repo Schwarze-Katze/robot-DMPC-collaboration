@@ -48,7 +48,7 @@ class SimRemap:
         self.last_yaw = {}
         # self.odom_sub = []
         # self.pid_linear = PIDController(kp=1.0, ki=0.2, kd=0.1, i_clamp=1, min_output=-1, max_output=1)
-        self.pid_angular = PIDController(kp=2, ki=0, kd=0.1, i_clamp=1, min_output=-1, max_output=1)
+        # self.pid_angular = PIDController(kp=2, ki=0, kd=0.1, i_clamp=1, min_output=-1, max_output=1)
         
         for i in range(self.m):
             twist_pub = rospy.Publisher(f"/robot{i+1}/drive_controller/cmd_vel", Twist, queue_size=1000)
@@ -76,9 +76,9 @@ class SimRemap:
                     diff-=math.pi
                 while diff<-math.pi:
                     diff+=math.pi
-                angular_output = self.pid_angular.update(diff)+msg.angular.z
-                # angular_output = msg.angular.z
-                print(f"diff = {diff:.3f}, ang v = {msg.angular.z:.3f}, ang ctrl = {angular_output:.3f}")
+                # angular_output = self.pid_angular.update(diff)+msg.angular.z
+                angular_output = msg.angular.z
+                # print(f"diff = {diff:.3f}, ang v = {msg.angular.z:.3f}, ang ctrl = {angular_output:.3f}")
                 
                 new_cmd = Twist()
                 # 不使用速度PID控制
