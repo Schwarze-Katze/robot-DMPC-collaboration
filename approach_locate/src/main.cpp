@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
                 if (has_rotate_pose && has_body_pose) {
                     const auto& q1 = rotate_pose.pose.orientation;
                     const auto& q2 = body_pose.pose.orientation;
+                    has_body_pose = has_rotate_pose = false;
 
                     double dot_product = q1.w * q2.w + q1.x * q2.x + q1.y * q2.y + q1.z * q2.z;
                     if (dot_product > 1.0) {
@@ -56,6 +57,9 @@ int main(int argc, char* argv[]) {
                     }
 
                     double angle = 2.0 * acos(dot_product);
+                    if(angle > M_PI){
+                        angle -= 2 * M_PI;
+                    }
 
                     // 发布夹角
                     std_msgs::Float64 angle_msg;
