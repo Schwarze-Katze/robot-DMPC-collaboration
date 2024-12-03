@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
 #include <geometry_msgs/PoseStamped.h>
+#include <std_msgs/Float64.h>
 
 //调试窗口标题
 #define DEBUGUI_TITLE "ArUco Detection"
