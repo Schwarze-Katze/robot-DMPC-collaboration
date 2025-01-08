@@ -2,7 +2,7 @@
 #include "approach_locate/locate.h"
 
 int main(int argc, char* argv[]) {
-    ros::init(argc, argv, "approach_locate");
+    ros::init(argc, argv, "init_locate");
     ros::NodeHandle n;
     ros::Rate loop_rate(60.0);
 
@@ -43,7 +43,6 @@ int main(int argc, char* argv[]) {
 
                 if (pose.id == 101) {
                     pose_msg.header.frame_id = "mark_link";
-                    rotatePosPub.publish(pose_msg);
                     rotate_pose = pose_msg;
                     has_mark_pose = true;
                 }
