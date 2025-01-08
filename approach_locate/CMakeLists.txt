@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 find_package(OpenCV REQUIRED)
+find_package (Eigen3 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -138,6 +139,8 @@ add_library(${PROJECT_NAME}_lib STATIC
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/main.cpp)
 
+add_executable(${PROJECT_NAME}_init_node src/init_calib.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -153,6 +156,8 @@ target_link_libraries(${PROJECT_NAME}_lib
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
 )
+
+target_link_libraries (${PROJECT_NAME}_init_node ${PROJECT_NAME}_lib Eigen3::Eigen)
 
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME}_lib)
 
