@@ -94,13 +94,20 @@ bool ArUcoLocation::getArUcoPose(std::vector<int>& ids, std::vector<std::vector<
         cv::Vec3d rotation = rvecs[i];
         cv::Vec3d translation = tvecs[i];
 
-        // 使用旋转和平移向量计算姿态
-        arucoPose.x = -translation[0];
-        arucoPose.y = translation[2];
+        // 修改坐标系: x轴为向前, y轴为左方向, z轴为上方向
+        arucoPose.x = translation[2];
+        arucoPose.y = -translation[0];
         arucoPose.z = translation[1];
+
         // 计算旋转矩阵并提取roll, pitch, yaw
         cv::Mat rotMat;
         cv::Rodrigues(rotation, rotMat);  // 将旋转向量转换为旋转矩阵
+
+        cv::Mat rotationAdjust = (cv::Mat_<double>(3, 3) <<
+            0, 0, 1,
+            -1, 0, 0,
+            0, -1, 0);
+        rotMat = rotationAdjust * rotMat;
 
         // 提取欧拉角 (roll, pitch, yaw)
         double sy = sqrt(rotMat.at<double>(0, 0) * rotMat.at<double>(0, 0) + rotMat.at<double>(1, 0) * rotMat.at<double>(1, 0));
@@ -132,6 +139,7 @@ bool ArUcoLocation::getArUcoPose(std::vector<int>& ids, std::vector<std::vector<
     }
     return true;
 }
+
 
 bool ArUcoLocation::destroy() {
     // 销毁窗口

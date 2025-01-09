@@ -8,7 +8,7 @@
     <arg name="qr_qz" default="0.0" />
     <arg name="qr_qw" default="1.0" />
 
-    <node pkg="approach_locate" type="init_locate_node" name="locate" required="true"
+    <node pkg="approach_locate" type="approach_locate_init_node" name="locate" required="true"
         output="screen">
         <param name="qr_x" value="$(arg qr_x)" />
         <param name="qr_y" value="$(arg qr_y)" />

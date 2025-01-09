@@ -1,12 +1,49 @@
 #include <Eigen/Eigen>
 #include "approach_locate/locate.h"
 
+nav_msgs::Odometry odom_buffer;
+Eigen::Quaterniond slam_orientation_buffer;
+Eigen::Vector3d slam_position_buffer;
+bool has_coord_diff = false;
+Eigen::Quaterniond orientation_coord_diff;
+Eigen::Vector3d position_coord_diff;
+ros::Publisher absOdomPub;
+
+void SlamOdomSub(const nav_msgs::Odometry &msg)
+{
+    // ROS_INFO("odom received");
+    odom_buffer = msg;
+    slam_orientation_buffer = Eigen::Quaterniond(msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z);
+    slam_position_buffer=Eigen::Vector3d(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z);
+
+    if (has_coord_diff)
+    {
+
+        nav_msgs::Odometry abs_odom_msg;
+        Eigen::Quaterniond abs_orientation = slam_orientation_buffer * orientation_coord_diff;
+        Eigen::Vector3d abs_position = slam_position_buffer + abs_orientation*position_coord_diff;
+        abs_odom_msg.header.stamp = ros::Time::now();
+        abs_odom_msg.header.frame_id = "map";
+        abs_odom_msg.pose.pose.position.x = abs_position.x();
+        abs_odom_msg.pose.pose.position.y = abs_position.y();
+        abs_odom_msg.pose.pose.position.z = abs_position.z();
+        abs_odom_msg.pose.pose.orientation.w = abs_orientation.w();
+        abs_odom_msg.pose.pose.orientation.x = abs_orientation.x();
+        abs_odom_msg.pose.pose.orientation.y = abs_orientation.y();
+        abs_odom_msg.pose.pose.orientation.z = abs_orientation.z();
+        std::cout<<abs_position<<std::endl<<abs_odom_msg.pose.pose.orientation.w<<std::endl;
+        absOdomPub.publish(abs_odom_msg);
+    }
+}
+
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "init_locate");
     ros::NodeHandle n;
     ros::Rate loop_rate(60.0);
 
-    ros::Publisher selfPosePub = n.advertise<geometry_msgs::PoseStamped>("/self_pose", 10);
+    ros::Publisher selfPosePub = n.advertise<geometry_msgs::PoseStamped>("/self_abs_pose", 10);
+    ros::Subscriber slamOdomSub = n.subscribe("/Odometry", 10,SlamOdomSub);
+    ros::Publisher absOdomPub = n.advertise<nav_msgs::Odometry>("/Odometry_abs", 10);
 
     // 读取二维码位姿参数
     double qr_x, qr_y, qr_z, qr_qx, qr_qy, qr_qz, qr_qw;
@@ -26,7 +63,7 @@ int main(int argc, char* argv[]) {
         return 1;
 
     std::vector<ArUcoPose_t> posevec;
-    geometry_msgs::PoseStamped pose_msg, rotate_pose, body_pose, self_pose;
+    geometry_msgs::PoseStamped pose_msg, rotate_pose, self_pose;
     bool has_mark_pose = false;
 
     while (ros::ok()) {
@@ -51,8 +88,6 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (has_mark_pose) {
-                    const auto& q1 = rotate_pose.pose.orientation;
-                    const auto& q2 = body_pose.pose.orientation;
                     has_mark_pose = false;
 
                     // 计算自身坐标
@@ -61,6 +96,11 @@ int main(int argc, char* argv[]) {
 
                     Eigen::Quaterniond self_orientation = qr_orientation * aruco_orientation.inverse();
                     Eigen::Vector3d self_position = qr_position - self_orientation * aruco_position;
+
+                    //compute LiDAR absolute coordination
+                    self_position(0) = self_position(0);
+                    self_position(1) = self_position(1)-0.29;
+                    self_position(2) = self_position(2)+0.06;
 
                     // 发布自身位姿
                     self_pose.header.stamp = ros::Time::now();
@@ -73,7 +113,13 @@ int main(int argc, char* argv[]) {
                     self_pose.pose.orientation.y = self_orientation.y();
                     self_pose.pose.orientation.z = self_orientation.z();
 
+                    orientation_coord_diff = self_orientation * slam_orientation_buffer.inverse();
+                    position_coord_diff = self_position - self_orientation * slam_position_buffer;
+                    has_coord_diff = true;
+
                     selfPosePub.publish(self_pose);
+
+                    
                 }
                 posevec.clear();
             }
