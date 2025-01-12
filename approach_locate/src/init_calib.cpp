@@ -20,8 +20,8 @@ void SlamOdomSub(const nav_msgs::Odometry &msg)
     {
 
         nav_msgs::Odometry abs_odom_msg;
-        Eigen::Quaterniond abs_orientation = slam_orientation_buffer * orientation_coord_diff;
-        Eigen::Vector3d abs_position = slam_position_buffer + abs_orientation*position_coord_diff;
+        Eigen::Quaterniond abs_orientation = orientation_coord_diff * slam_orientation_buffer;
+        Eigen::Vector3d abs_position = orientation_coord_diff * slam_position_buffer + position_coord_diff;
         abs_odom_msg.header.stamp = ros::Time::now();
         abs_odom_msg.header.frame_id = "map";
         abs_odom_msg.pose.pose.position.x = abs_position.x();
@@ -31,32 +31,32 @@ void SlamOdomSub(const nav_msgs::Odometry &msg)
         abs_odom_msg.pose.pose.orientation.x = abs_orientation.x();
         abs_odom_msg.pose.pose.orientation.y = abs_orientation.y();
         abs_odom_msg.pose.pose.orientation.z = abs_orientation.z();
-        std::cout<<abs_position<<std::endl<<abs_odom_msg.pose.pose.orientation.w<<std::endl;
+        std::cout << abs_position << std::endl << abs_orientation.coeffs()<< std::endl;
         absOdomPub.publish(abs_odom_msg);
     }
 }
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "init_locate");
-    ros::NodeHandle n;
+    ros::NodeHandle n("~");
     ros::Rate loop_rate(60.0);
 
     ros::Publisher selfPosePub = n.advertise<geometry_msgs::PoseStamped>("/self_abs_pose", 10);
     ros::Subscriber slamOdomSub = n.subscribe("/Odometry", 10,SlamOdomSub);
-    ros::Publisher absOdomPub = n.advertise<nav_msgs::Odometry>("/Odometry_abs", 10);
+    absOdomPub = n.advertise<nav_msgs::Odometry>("/Odometry_abs", 10);
 
     // 读取二维码位姿参数
     double qr_x, qr_y, qr_z, qr_qx, qr_qy, qr_qz, qr_qw;
-    n.getParam("/qr_x", qr_x);
-    n.getParam("/qr_y", qr_y);
-    n.getParam("/qr_z", qr_z);
-    n.getParam("/qr_qx", qr_qx);
-    n.getParam("/qr_qy", qr_qy);
-    n.getParam("/qr_qz", qr_qz);
-    n.getParam("/qr_qw", qr_qw);
+    n.getParam("qr_x", qr_x);
+    n.getParam("qr_y", qr_y);
+    n.getParam("qr_z", qr_z);
+    n.getParam("qr_qx", qr_qx);
+    n.getParam("qr_qy", qr_qy);
+    n.getParam("qr_qz", qr_qz);
+    n.getParam("qr_qw", qr_qw);
 
-    Eigen::Quaterniond qr_orientation(qr_qw, qr_qx, qr_qy, qr_qz);
-    Eigen::Vector3d qr_position(qr_x, qr_y, qr_z);
+    Eigen::Quaterniond aruco_abs_orientation(qr_qw, qr_qx, qr_qy, qr_qz);
+    Eigen::Vector3d aruco_abs_position(qr_x, qr_y, qr_z);
 
     ArUcoLocation arLoc;
     if (!arLoc.init(0, true))
@@ -67,7 +67,15 @@ int main(int argc, char* argv[]) {
     bool has_mark_pose = false;
 
     while (ros::ok()) {
-        if (arLoc.getArUcoPose(posevec)) {
+        if (true or arLoc.getArUcoPose(posevec)) {
+#ifdef DEBUG_NO_VIDEO
+            posevec.clear();
+            ArUcoPose_t pose1;
+            pose1.id = 101;
+            pose1.qx = pose1.qy = pose1.qz = 0;
+            pose1.qw = 1;
+            posevec.push_back(pose1);
+#endif
             for (auto& pose : posevec) {
                 pose_msg.header.stamp = ros::Time::now();
                 pose_msg.pose.position.x = pose.x;
@@ -91,15 +99,15 @@ int main(int argc, char* argv[]) {
                     has_mark_pose = false;
 
                     // 计算自身坐标
-                    Eigen::Quaterniond aruco_orientation(rotate_pose.pose.orientation.w, rotate_pose.pose.orientation.x, rotate_pose.pose.orientation.y, rotate_pose.pose.orientation.z);
-                    Eigen::Vector3d aruco_position(rotate_pose.pose.position.x, rotate_pose.pose.position.y, rotate_pose.pose.position.z);
+                    Eigen::Quaterniond aruco_relative_orientation(rotate_pose.pose.orientation.w, rotate_pose.pose.orientation.x, rotate_pose.pose.orientation.y, rotate_pose.pose.orientation.z);
+                    Eigen::Vector3d aruco_relative_position(rotate_pose.pose.position.x, rotate_pose.pose.position.y, rotate_pose.pose.position.z);
 
-                    Eigen::Quaterniond self_orientation = qr_orientation * aruco_orientation.inverse();
-                    Eigen::Vector3d self_position = qr_position - self_orientation * aruco_position;
+                    Eigen::Quaterniond self_orientation = aruco_abs_orientation * aruco_relative_orientation.inverse();
+                    Eigen::Vector3d self_position = aruco_abs_position - self_orientation * aruco_relative_position;
 
                     //compute LiDAR absolute coordination
-                    self_position(0) = self_position(0);
-                    self_position(1) = self_position(1)-0.29;
+                    self_position(0) = self_position(0)-0.29;
+                    self_position(1) = self_position(1);
                     self_position(2) = self_position(2)+0.06;
 
                     // 发布自身位姿
