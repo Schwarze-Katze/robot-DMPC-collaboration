@@ -67,16 +67,22 @@ int main(int argc, char* argv[]) {
     bool has_mark_pose = false;
 
     while (ros::ok()) {
-        if (true or arLoc.getArUcoPose(posevec)) {
 #ifdef DEBUG_NO_VIDEO
+        if (true) {
             posevec.clear();
             ArUcoPose_t pose1;
             pose1.id = 101;
             pose1.qx = pose1.qy = pose1.qz = 0;
             pose1.qw = 1;
             posevec.push_back(pose1);
+#else 
+        if (arLoc.getArUcoPose(posevec)) {
 #endif
             for (auto& pose : posevec) {
+                if (pose.x * pose.x + pose.y * pose.y > 1.0) {
+                    ROS_INFO("Skip marker distance > 1m");
+                    continue;
+                }
                 pose_msg.header.stamp = ros::Time::now();
                 pose_msg.pose.position.x = pose.x;
                 pose_msg.pose.position.y = pose.y;
@@ -105,10 +111,11 @@ int main(int argc, char* argv[]) {
                     Eigen::Quaterniond self_orientation = aruco_abs_orientation * aruco_relative_orientation.inverse();
                     Eigen::Vector3d self_position = aruco_abs_position - self_orientation * aruco_relative_position;
 
-                    //compute LiDAR absolute coordination
-                    self_position(0) = self_position(0)-0.29;
-                    self_position(1) = self_position(1);
-                    self_position(2) = self_position(2)+0.06;
+                    // 计算LiDAR绝对坐标
+                    Eigen::Quaterniond aruco_to_lidar_orientation(Eigen::AngleAxisd(-20 * M_PI / 180, Eigen::Vector3d::UnitY()));
+                    Eigen::Vector3d aruco_to_lidar_position(-0.29, 0.0, 0.06);
+                    self_position += aruco_to_lidar_position;
+                    self_orientation *= aruco_to_lidar_orientation;
 
                     // 发布自身位姿
                     self_pose.header.stamp = ros::Time::now();
